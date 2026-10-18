@@ -1,0 +1,3750 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Planora - Student Productivity & Task Management</title>
+  <style>
+    /* CSS VARIABLES & THEMING */
+    :root {
+      --bg-primary: #f8f6fc;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f3effa;
+      --text-main: #1f1926;
+      --text-muted: #6e6578;
+      --border-color: #e5def0;
+      
+      --purple-primary: #7c3aed;
+      --purple-light: #8b5cf6;
+      --purple-dark: #6d28d9;
+      --purple-subtle: #f3e8ff;
+      --purple-glow: rgba(124, 58, 237, 0.15);
+      
+      --accent-green: #10b981;
+      --accent-green-bg: #ecfdf5;
+      --accent-red: #ef4444;
+      --accent-red-bg: #fef2f2;
+      --accent-amber: #f59e0b;
+      
+      --shadow-sm: 0 2px 8px rgba(124, 58, 237, 0.05);
+      --shadow-md: 0 4px 16px rgba(124, 58, 237, 0.08);
+      --shadow-lg: 0 8px 24px rgba(124, 58, 237, 0.12);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      --bottom-nav-height: 65px;
+      --header-height: 70px;
+      --transition-speed: 0.25s;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0f0c15;
+      --bg-card: #181424;
+      --bg-card-subtle: #231d34;
+      --text-main: #f3effa;
+      --text-muted: #a095b0;
+      --border-color: #2e2640;
+      
+      --purple-primary: #8b5cf6;
+      --purple-light: #a78bfa;
+      --purple-dark: #7c3aed;
+      --purple-subtle: #2d1f47;
+      --purple-glow: rgba(139, 92, 246, 0.25);
+      
+      --accent-green: #34d399;
+      --accent-green-bg: rgba(52, 211, 153, 0.1);
+      --accent-red: #f87171;
+      --accent-red-bg: rgba(248, 113, 113, 0.1);
+      --accent-amber: #fbbf24;
+
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 500px; /* Responsive mobile shell container */
+      background-color: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.05);
+      padding-bottom: calc(var(--bottom-nav-height) + 20px);
+    }
+
+    /* HEADER */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: var(--header-height);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg, .splash-logo svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--purple-primary), var(--purple-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .header-greeting {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-speed);
+    }
+
+    .theme-toggle-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* BOTTOM NAVIGATION */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
+      height: var(--bottom-nav-height);
+      background-color: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      height: 100%;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      gap: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      transition: color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .nav-item svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform var(--transition-speed);
+    }
+
+    .nav-item.active {
+      color: var(--purple-primary);
+    }
+
+    .nav-item.active svg {
+      transform: translateY(-2px);
+    }
+
+    /* MAIN CONTENT VIEW SCREEN MANAGEMENT */
+    main {
+      padding: 16px;
+      flex: 1;
+    }
+
+    .tab-screen {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .tab-screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* COMMON UI ELEMENTS */
+    .card {
+      background-color: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark));
+      color: white;
+      box-shadow: 0 4px 14px var(--purple-glow);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card-subtle);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-danger {
+      background: var(--accent-red-bg);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-purple {
+      background-color: var(--purple-subtle);
+      color: var(--purple-primary);
+    }
+
+    .badge-green {
+      background-color: var(--accent-green-bg);
+      color: var(--accent-green);
+    }
+
+    .badge-amber {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+
+    /* SCREEN 1: DAILY TASK STYLES */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .dashboard-header h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .streak-banner {
+      background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark));
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 20px var(--purple-glow);
+    }
+
+    .streak-info h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
+
+    .streak-count {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: #ffffff;
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: var(--radius-full);
+    }
+
+    .task-card {
+      border-left: 4px solid var(--purple-primary);
+    }
+
+    .task-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .task-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .subtopic-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .subtopic-item:last-child {
+      border-bottom: none;
+    }
+
+    .checkbox-custom {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .checkbox-custom.checked {
+      background-color: var(--purple-primary);
+      border-color: var(--purple-primary);
+      color: white;
+    }
+
+    .subtopic-title {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .subtopic-title.completed {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .subtopic-duration {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-card-subtle);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+    }
+
+    /* GRAPH STYLES */
+    .chart-container {
+      width: 100%;
+      height: 180px;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .svg-chart {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* SCREEN 2: RAPID TIMER STYLES */
+    .timer-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .circular-timer {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .timer-circle-bg {
+      fill: none;
+      stroke: var(--bg-card-subtle);
+      stroke-width: 10;
+    }
+
+    .timer-circle-progress {
+      fill: none;
+      stroke: var(--purple-primary);
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 691; /* 2 * PI * 110 */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .timer-display {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .timer-time {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .preset-btns {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* SCREEN 3: MOCK STREAKS */
+    .mock-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .score-item:last-child {
+      border-bottom: none;
+    }
+
+    /* MODAL STYLES */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    @media (min-width: 600px) {
+      .modal-overlay {
+        align-items: center;
+      }
+      .modal-content {
+        border-radius: var(--radius-lg) !important;
+        max-width: 450px;
+      }
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: var(--bg-card);
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 24px;
+      animation: slideUp 0.3s ease-out;
+      box-shadow: var(--shadow-lg);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card-subtle);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--purple-primary);
+    }
+
+    .subtopic-input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* EMPTY STATES */
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      stroke: var(--text-muted);
+      margin-bottom: 10px;
+      opacity: 0.6;
+    }
+
+    .empty-state p {
+      font-size: 0.9rem;
+    }
+
+    /* UTILITY CLASSES */
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .mt-2 { margin-top: 8px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+
+    /* CONFIRMATION OVERLAY (DOUBLE STEP) */
+    .confirm-box {
+      background: var(--bg-card-subtle);
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--purple-glow);
+      margin-top: 12px;
+      font-size: 0.85rem;
+    }
+
+    /* BADGE (RED) */
+    .badge-red {
+      background-color: var(--accent-red-bg);
+      color: var(--accent-red);
+    }
+
+    /* CUSTOM TIMER + OVERTIME */
+    .custom-timer { width: 100%; max-width: 280px; margin: -6px 0 14px; }
+    .custom-timer-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .custom-timer-row .form-control { width: 58px; padding: 8px 4px; text-align: center; }
+    .custom-timer-row span { font-weight: 700; color: var(--text-muted); }
+    .timer-error { color: var(--accent-red); font-size: 0.75rem; text-align: center; min-height: 0; margin-top: 4px; }
+    .timer-overtime {
+      display: none;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+      font-variant-numeric: tabular-nums;
+    }
+    .timer-overtime small { font-weight: 500; color: var(--text-muted); font-size: 0.65rem; }
+
+    /* CONFIRM / INFO MODAL TEXT */
+    #info-modal-body, #confirm-modal-body { white-space: pre-line; }
+
+    /* SPLASH SCREEN */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 50% 30%, var(--purple-glow) 0%, transparent 62%),
+        linear-gradient(180deg, var(--bg-card) 0%, var(--purple-subtle) 100%);
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #splash.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .splash-logo { width: min(34vw, 140px); aspect-ratio: 1 / 1; animation: splashPop 0.7s ease-out both; }
+    @keyframes splashPop { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+    .splash-title {
+      margin-top: 18px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--purple-primary), var(--purple-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .splash-tagline { margin-top: 6px; color: var(--text-muted); font-size: 1rem; letter-spacing: 0.3px; text-align: center; }
+    .splash-loader { width: min(70vw, 260px); margin-top: 40px; }
+    .splash-bar { height: 8px; border-radius: var(--radius-full); background: var(--border-color); overflow: hidden; }
+    .splash-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--purple-light), var(--purple-dark));
+      border-radius: inherit;
+      transition: width 0.12s linear;
+    }
+    .splash-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
+    .splash-percent { font-weight: 700; color: var(--purple-primary); font-variant-numeric: tabular-nums; }
+
+    /* =====================================================================
+       FIREBASE ADDITIONS: account, subscription, payment, support chat
+       (reuses the existing PLANORA variables, radii and component classes)
+       ===================================================================== */
+    .badge-muted { background: var(--bg-card-subtle); color: var(--text-muted); border: 1px solid var(--border-color); }
+    .pl-title { font-size: 1rem; font-weight: 700; }
+    .pl-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.9rem; }
+    .pl-row:last-child { border-bottom: none; }
+    .pl-row .k { color: var(--text-muted); font-size: 0.82rem; flex-shrink: 0; }
+    .pl-row .v { font-weight: 600; text-align: right; word-break: break-all; }
+    .pl-link { background: none; border: none; color: var(--purple-primary); font-weight: 600; font-size: 0.85rem; cursor: pointer; padding: 4px; }
+    .pl-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .pl-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-card-subtle); margin-bottom: 8px; cursor: pointer; }
+    .pl-item .t { font-weight: 700; font-size: 0.9rem; }
+    .pl-item .s { color: var(--text-muted); font-size: 0.78rem; margin-top: 2px; }
+    .pl-plan { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; border: 2px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-card-subtle); color: var(--text-main); cursor: pointer; margin-bottom: 8px; font-size: 0.9rem; }
+    .pl-plan.active { border-color: var(--purple-primary); background: var(--purple-subtle); }
+    .pl-plan .n { font-weight: 700; }
+    .pl-plan .d { color: var(--text-muted); font-size: 0.78rem; }
+    .pl-plan .p { font-weight: 800; color: var(--purple-primary); white-space: nowrap; }
+    .pl-qr { text-align: center; padding: 16px; border: 1px dashed var(--border-color); border-radius: var(--radius-md); background: var(--bg-card-subtle); margin-bottom: 14px; }
+    .pl-qr img { width: 100%; max-width: 230px; border-radius: var(--radius-md); background: #fff; padding: 8px; display: block; margin: 0 auto 10px; }
+    .pl-qr p { font-size: 0.82rem; color: var(--text-muted); white-space: pre-line; line-height: 1.45; }
+    .pl-notice { padding: 10px 12px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); color: var(--accent-amber); font-size: 0.82rem; font-weight: 600; margin-bottom: 14px; }
+    .pl-notice.info { background: var(--purple-subtle); color: var(--purple-primary); }
+    .pl-drop { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; background: var(--bg-card-subtle); }
+    .pl-shot { position: relative; margin-top: 10px; text-align: center; }
+    .pl-shot img { max-width: 100%; max-height: 220px; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+    textarea.form-control { resize: vertical; font-family: inherit; }
+    .pl-chat-sheet { display: flex; flex-direction: column; height: 85vh; padding-bottom: 14px; }
+    .pl-chat-log { flex: 1; overflow-y: auto; padding: 4px 2px 8px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+    .pl-bubble { max-width: 82%; padding: 9px 12px; border-radius: 16px; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+    .pl-bubble.me { align-self: flex-end; background: linear-gradient(135deg, var(--purple-primary), var(--purple-dark)); color: #fff; border-bottom-right-radius: 4px; }
+    .pl-bubble.them { align-self: flex-start; background: var(--bg-card-subtle); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+    .pl-meta { font-size: 0.68rem; opacity: 0.75; margin-top: 4px; display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+    .pl-meta button { background: none; border: none; color: inherit; text-decoration: underline; cursor: pointer; font-size: 0.7rem; font-weight: 700; }
+    .pl-chat-form { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border-color); padding-top: 10px; }
+    .pl-chat-form textarea { min-height: 44px; max-height: 110px; }
+    .pl-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-amber); margin-right: 6px; }
+    .pl-dot.on { background: var(--accent-green); }
+    .pl-unread { background: var(--accent-red); color: #fff; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; padding: 2px 7px; }
+    .pl-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--purple-subtle); color: var(--purple-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; overflow: hidden; flex-shrink: 0; }
+    .pl-avatar img, #user-avatar-initials img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; }
+    .pl-toast { position: fixed; left: 50%; bottom: calc(var(--bottom-nav-height) + 24px); transform: translateX(-50%) translateY(20px); background: var(--text-main); color: var(--bg-card); padding: 10px 16px; border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 600; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 400; max-width: 90vw; text-align: center; }
+    .pl-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (prefers-reduced-motion: reduce) { .pl-toast { transition: none; } }
+  </style>
+  <script>try{var _s=JSON.parse(localStorage.getItem('PLANORA_APP_DATA_V1')||'null');if(_s&&_s.theme)document.documentElement.setAttribute('data-theme',_s.theme);}catch(e){}</script>
+</head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash" role="progressbar" aria-label="Loading Planora" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+  <div class="splash-logo">
+<svg class="brand-logo" viewBox="313 308 1308 1308" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Planora logo">
+  <defs>
+    <linearGradient id="tileBase-s" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#5a2cc2"/>
+      <stop offset="0.35" stop-color="#4c22ae"/>
+      <stop offset="0.7"  stop-color="#391798"/>
+      <stop offset="1"    stop-color="#2b0f80"/>
+    </linearGradient>
+    <radialGradient id="tileGlow-s" cx="960" cy="372" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#7c3fdf" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#6430cf" stop-opacity="0.5"/>
+      <stop offset="1"   stop-color="#5a2cc2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tileEdge-s" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a62dd" stop-opacity="0.75"/>
+      <stop offset="0.5" stop-color="#6a45c4" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#3a1a99" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="stemGrad-s" x1="0" y1="553" x2="0" y2="1378" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#fbf9ff"/>
+      <stop offset="1"    stop-color="#e7defd"/>
+    </linearGradient>
+    <linearGradient id="outerRing-s" x1="1230" y1="760" x2="1060" y2="1160" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#f4efff"/>
+      <stop offset="0.75" stop-color="#cdbbf7"/>
+      <stop offset="1"    stop-color="#b39af0"/>
+    </linearGradient>
+    <linearGradient id="innerRing-s" x1="900" y1="620" x2="1150" y2="1070" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#b79df2"/>
+      <stop offset="0.35" stop-color="#c3b0f6"/>
+      <stop offset="0.75" stop-color="#e9e1fd"/>
+      <stop offset="1"    stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="innerStem-s" x1="0" y1="620" x2="0" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b79df2"/>
+      <stop offset="0.5" stop-color="#d6c9f9"/>
+      <stop offset="1"   stop-color="#eee8ff"/>
+    </linearGradient>
+    <linearGradient id="lowerBand-s" x1="1000" y1="1100" x2="740" y2="1370" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b39af0"/>
+      <stop offset="0.6" stop-color="#b59cf1"/>
+      <stop offset="1"   stop-color="#c5b3f6"/>
+    </linearGradient>
+    <linearGradient id="checkGrad-s" x1="1200" y1="640" x2="940" y2="990" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#f1ebff"/>
+      <stop offset="1"    stop-color="#c3aff5"/>
+    </linearGradient>
+    <mask id="gapMask-s" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932">
+      <rect width="1932" height="1932" fill="#fff"/>
+      <polygon points="900,896 1400,396 1400,584 900,1084" fill="#000"/>
+    </mask>
+    <filter id="tileShadow-s" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="26" stdDeviation="30" flood-color="#3a2a78" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pShadow-s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="6" dy="18" stdDeviation="16" flood-color="#1a0a5c" flood-opacity="0.38"/>
+    </filter>
+    <filter id="checkShadow-s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="8" stdDeviation="7" flood-color="#1a0a5c" flood-opacity="0.3"/>
+    </filter>
+    <clipPath id="tileClip-s">
+      <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330"/>
+    </clipPath>
+  </defs>
+  <g filter="url(#tileShadow-s)">
+    <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330" fill="url(#tileBase-s)"/>
+  </g>
+  <g clip-path="url(#tileClip-s)">
+    <rect x="333" y="328" width="1267" height="1269" fill="url(#tileGlow-s)"/>
+    <rect x="333" y="1100" width="1267" height="497" fill="#24097a" opacity="0.18"/>
+  </g>
+  <rect x="336" y="331" width="1261" height="1263" rx="327" ry="327" fill="none" stroke="url(#tileEdge-s)" stroke-width="6"/>
+  <g filter="url(#pShadow-s)">
+    <g mask="url(#gapMask-s)" fill="none">
+      <path d="M815 653 H990 A207 207 0 0 1 990 1067" stroke="url(#innerRing-s)" stroke-width="67"/>
+      <path d="M780 587 H990 A273 273 0 0 1 990 1133" stroke="url(#outerRing-s)" stroke-width="67"/>
+    </g>
+    <path d="M753 1060 V715 A62 62 0 0 1 815 653" fill="none" stroke="url(#innerStem-s)" stroke-width="67"/>
+    <path d="M687 1378 V680 A93 93 0 0 1 780 587 H990" fill="none" stroke="url(#stemGrad-s)" stroke-width="67"/>
+    <path d="M990 1100 H835 A115 115 0 0 0 720 1215 V1378 Q787 1365 787 1280 V1215 A48 48 0 0 1 835 1167 H990 Z" fill="url(#lowerBand-s)"/>
+    <path d="M990 1035 H835 Q805 1035 787 1044 L720 1075 V1215 A115 115 0 0 1 835 1100 H990 Z" fill="#ffffff"/>
+    <path d="M720 1075 L787 1044 V1100 H720 Z" fill="#f4f0ff" opacity="0.0"/>
+  </g>
+  <g filter="url(#checkShadow-s)">
+    <polygon points="887,803 830,860 958,992 1247,698 1195,636 958,875" fill="url(#checkGrad-s)"/>
+  </g>
+</svg>
+  </div>
+  <div class="splash-title">Planora</div>
+  <div class="splash-tagline">Plan Smart, Do Better.</div>
+  <div class="splash-loader">
+    <div class="splash-bar"><div class="splash-bar-fill" id="splash-fill"></div></div>
+    <div class="splash-meta"><span id="splash-status">Loading…</span><span class="splash-percent" id="splash-percent">0%</span></div>
+    <div style="text-align:center; margin-top:16px;"><button class="btn btn-primary btn-sm" id="splash-continue" style="display:none;">Continue in offline mode</button></div>
+  </div>
+</div>
+
+<div id="app-container">
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo-icon">
+<svg class="brand-logo" viewBox="313 308 1308 1308" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Planora logo">
+  <defs>
+    <linearGradient id="tileBase-h" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#5a2cc2"/>
+      <stop offset="0.35" stop-color="#4c22ae"/>
+      <stop offset="0.7"  stop-color="#391798"/>
+      <stop offset="1"    stop-color="#2b0f80"/>
+    </linearGradient>
+    <radialGradient id="tileGlow-h" cx="960" cy="372" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#7c3fdf" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#6430cf" stop-opacity="0.5"/>
+      <stop offset="1"   stop-color="#5a2cc2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tileEdge-h" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a62dd" stop-opacity="0.75"/>
+      <stop offset="0.5" stop-color="#6a45c4" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#3a1a99" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="stemGrad-h" x1="0" y1="553" x2="0" y2="1378" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#fbf9ff"/>
+      <stop offset="1"    stop-color="#e7defd"/>
+    </linearGradient>
+    <linearGradient id="outerRing-h" x1="1230" y1="760" x2="1060" y2="1160" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#f4efff"/>
+      <stop offset="0.75" stop-color="#cdbbf7"/>
+      <stop offset="1"    stop-color="#b39af0"/>
+    </linearGradient>
+    <linearGradient id="innerRing-h" x1="900" y1="620" x2="1150" y2="1070" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#b79df2"/>
+      <stop offset="0.35" stop-color="#c3b0f6"/>
+      <stop offset="0.75" stop-color="#e9e1fd"/>
+      <stop offset="1"    stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="innerStem-h" x1="0" y1="620" x2="0" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b79df2"/>
+      <stop offset="0.5" stop-color="#d6c9f9"/>
+      <stop offset="1"   stop-color="#eee8ff"/>
+    </linearGradient>
+    <linearGradient id="lowerBand-h" x1="1000" y1="1100" x2="740" y2="1370" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b39af0"/>
+      <stop offset="0.6" stop-color="#b59cf1"/>
+      <stop offset="1"   stop-color="#c5b3f6"/>
+    </linearGradient>
+    <linearGradient id="checkGrad-h" x1="1200" y1="640" x2="940" y2="990" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#f1ebff"/>
+      <stop offset="1"    stop-color="#c3aff5"/>
+    </linearGradient>
+    <mask id="gapMask-h" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932">
+      <rect width="1932" height="1932" fill="#fff"/>
+      <polygon points="900,896 1400,396 1400,584 900,1084" fill="#000"/>
+    </mask>
+    <filter id="tileShadow-h" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="26" stdDeviation="30" flood-color="#3a2a78" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pShadow-h" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="6" dy="18" stdDeviation="16" flood-color="#1a0a5c" flood-opacity="0.38"/>
+    </filter>
+    <filter id="checkShadow-h" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="8" stdDeviation="7" flood-color="#1a0a5c" flood-opacity="0.3"/>
+    </filter>
+    <clipPath id="tileClip-h">
+      <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330"/>
+    </clipPath>
+  </defs>
+  <g filter="url(#tileShadow-h)">
+    <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330" fill="url(#tileBase-h)"/>
+  </g>
+  <g clip-path="url(#tileClip-h)">
+    <rect x="333" y="328" width="1267" height="1269" fill="url(#tileGlow-h)"/>
+    <rect x="333" y="1100" width="1267" height="497" fill="#24097a" opacity="0.18"/>
+  </g>
+  <rect x="336" y="331" width="1261" height="1263" rx="327" ry="327" fill="none" stroke="url(#tileEdge-h)" stroke-width="6"/>
+  <g filter="url(#pShadow-h)">
+    <g mask="url(#gapMask-h)" fill="none">
+      <path d="M815 653 H990 A207 207 0 0 1 990 1067" stroke="url(#innerRing-h)" stroke-width="67"/>
+      <path d="M780 587 H990 A273 273 0 0 1 990 1133" stroke="url(#outerRing-h)" stroke-width="67"/>
+    </g>
+    <path d="M753 1060 V715 A62 62 0 0 1 815 653" fill="none" stroke="url(#innerStem-h)" stroke-width="67"/>
+    <path d="M687 1378 V680 A93 93 0 0 1 780 587 H990" fill="none" stroke="url(#stemGrad-h)" stroke-width="67"/>
+    <path d="M990 1100 H835 A115 115 0 0 0 720 1215 V1378 Q787 1365 787 1280 V1215 A48 48 0 0 1 835 1167 H990 Z" fill="url(#lowerBand-h)"/>
+    <path d="M990 1035 H835 Q805 1035 787 1044 L720 1075 V1215 A115 115 0 0 1 835 1100 H990 Z" fill="#ffffff"/>
+    <path d="M720 1075 L787 1044 V1100 H720 Z" fill="#f4f0ff" opacity="0.0"/>
+  </g>
+  <g filter="url(#checkShadow-h)">
+    <polygon points="887,803 830,860 958,992 1247,698 1195,636 958,875" fill="url(#checkGrad-h)"/>
+  </g>
+</svg>
+      </div>
+      <div class="brand-text">
+        <h1>Planora</h1>
+        <div class="header-greeting" id="header-greeting">Good Morning</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme">
+        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT AREA -->
+  <main>
+    <!-- SCREEN 1: DAILY TASK -->
+    <section id="screen-daily" class="tab-screen active">
+      <div class="dashboard-header">
+        <div>
+          <h2>Daily Dashboard</h2>
+          <span class="text-muted" id="current-date-str">Today</span>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddTaskModal()">
+          + Add Task
+        </button>
+      </div>
+
+      <!-- STREAK & PROGRESS BANNER -->
+      <div class="streak-banner">
+        <div class="streak-info">
+          <h3>Daily Streak</h3>
+          <div class="streak-count" id="task-streak-count">0 🔥</div>
+          <div style="font-size:0.8rem; opacity:0.9;" id="completion-ratio">0/0 Tasks Completed</div>
+        </div>
+        <div style="text-align: right;">
+          <span class="badge badge-purple" style="background:rgba(255,255,255,0.2); color:white;" id="progress-percent">0%</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-container" style="margin-bottom: 20px; height:10px; background:var(--bg-card-subtle);">
+        <div class="progress-bar-fill" id="daily-progress-fill" style="background:var(--purple-primary);"></div>
+      </div>
+
+      <!-- TODAY'S TASKS SECTION -->
+      <div class="mb-4">
+        <div class="flex-between mb-2">
+          <h3 style="font-size:1rem; font-weight:700;">Today's Tasks</h3>
+          <span class="text-muted" id="task-count-badge">0 tasks</span>
+        </div>
+
+        <div id="tasks-container">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+
+      <!-- PROGRESS GRAPH SECTION -->
+      <div class="card">
+        <div class="flex-between mb-2">
+          <h3 style="font-size:1rem; font-weight:700;">Task Completion</h3>
+          <select id="graph-view-select" class="form-control" style="width:auto; padding:4px 8px; font-size:0.75rem;" onchange="renderTaskGraph()">
+            <option value="daily">7-Day View</option>
+            <option value="weekly">Weekly View</option>
+          </select>
+        </div>
+        <div class="text-muted" id="graph-range-label" style="font-size:0.75rem;"></div>
+        <div class="chart-container" id="task-chart-wrapper">
+          <!-- Inline SVG Chart rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: RAPID (FOCUS TIMER) -->
+    <section id="screen-rapid" class="tab-screen">
+      <div class="dashboard-header">
+        <h2>Rapid Focus Timer</h2>
+      </div>
+
+      <div class="card timer-wrapper">
+        <div class="form-group" style="width:100%; max-width:280px; text-align:center;">
+          <input type="text" id="timer-session-name" class="form-control" placeholder="Session Name (e.g. Organic Chem)" style="text-align:center;">
+        </div>
+
+        <div class="preset-btns">
+          <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(5)">5m</button>
+          <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(15)">15m</button>
+          <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(25)">25m</button>
+          <button class="btn btn-secondary btn-sm" onclick="setTimerPreset(50)">50m</button>
+        </div>
+
+        <!-- CUSTOM TIMER -->
+        <div class="custom-timer">
+          <div class="text-muted" style="text-align:center; margin-bottom:6px;">Custom timer</div>
+          <div class="custom-timer-row">
+            <input type="number" id="custom-h" class="form-control" min="0" max="99" placeholder="HH" inputmode="numeric" aria-label="Hours">
+            <span>:</span>
+            <input type="number" id="custom-m" class="form-control" min="0" max="999" placeholder="MM" inputmode="numeric" aria-label="Minutes">
+            <span>:</span>
+            <input type="number" id="custom-s" class="form-control" min="0" max="999" placeholder="SS" inputmode="numeric" aria-label="Seconds">
+            <button class="btn btn-secondary btn-sm" onclick="setCustomTimer()">Set</button>
+          </div>
+          <div class="timer-error" id="custom-timer-error"></div>
+        </div>
+
+        <!-- CIRCULAR COUNTDOWN -->
+        <div class="circular-timer">
+          <svg class="timer-svg" viewBox="0 0 240 240">
+            <circle class="timer-circle-bg" cx="120" cy="120" r="110"></circle>
+            <circle class="timer-circle-progress" id="timer-progress-ring" cx="120" cy="120" r="110"></circle>
+          </svg>
+          <div class="timer-display">
+            <div class="timer-time" id="timer-time-display">25:00</div>
+            <div class="timer-label" id="timer-status-label">Ready</div>
+            <div class="timer-overtime" id="timer-overtime"><span id="timer-overtime-value">+00:00:00</span> <small>overtime</small></div>
+          </div>
+        </div>
+
+        <div class="timer-controls" style="flex-wrap:wrap;">
+          <button class="btn btn-primary" id="timer-start-btn" onclick="toggleTimer()">Start</button>
+          <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+          <button class="btn btn-danger" onclick="stopTimer()">Stop</button>
+        </div>
+      </div>
+
+      <!-- TIMER HISTORY -->
+      <div class="card">
+        <div class="flex-between mb-2">
+          <h3 style="font-size:1rem; font-weight:700;">Recent Sessions</h3>
+          <button class="btn btn-secondary btn-sm" onclick="clearRapidHistory()">Clear</button>
+        </div>
+        <div id="rapid-history-list">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: MOCK STREAKS -->
+    <section id="screen-mock" class="tab-screen">
+      <div id="mock-dashboard-view">
+        <div class="dashboard-header">
+          <h2>Mock Test Streaks</h2>
+          <button class="btn btn-primary btn-sm" onclick="openAddMockCategoryModal()">+ Category</button>
+        </div>
+
+        <div class="mock-grid" id="mock-categories-grid">
+          <!-- Dynamically Filled -->
+        </div>
+      </div>
+
+      <!-- CATEGORY DETAIL VIEW (HIDDEN BY DEFAULT) -->
+      <div id="mock-detail-view" style="display:none;">
+        <button class="btn btn-secondary btn-sm mb-4" onclick="closeMockDetail()">← Back to Dashboard</button>
+        <div class="card mb-4">
+          <div class="flex-between">
+            <h2 id="detail-category-title" style="font-size:1.3rem; font-weight:700;">Category Title</h2>
+            <span class="badge badge-purple" id="detail-category-streak">0 Day Streak 🔥</span>
+          </div>
+          <p class="text-muted mt-2" id="detail-category-desc">Description</p>
+          <div style="display:flex; gap:16px; margin-top:16px;">
+            <div>
+              <div class="text-muted">Best Streak</div>
+              <strong id="detail-best-streak">0 Days</strong>
+            </div>
+            <div>
+              <div class="text-muted">Latest Score</div>
+              <strong id="detail-latest-score">N/A</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="flex-between mb-2">
+            <h3 style="font-size:1rem; font-weight:700;">Score Progress</h3>
+            <button class="btn btn-primary btn-sm" onclick="openAddScoreModal()">+ Add Score</button>
+          </div>
+          <div class="chart-container" id="mock-score-chart-wrapper">
+            <!-- Inline SVG chart -->
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:1rem; font-weight:700;" class="mb-2">Score History</h3>
+          <div id="mock-score-history-list">
+            <!-- Score items -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: PROFILE -->
+    <section id="screen-profile" class="tab-screen">
+      <div class="dashboard-header">
+        <h2>Student Profile</h2>
+      </div>
+
+      <!-- USER INFO CARD -->
+      <div class="card flex-between">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="width:50px; height:50px; border-radius:50%; background:var(--purple-subtle); display:flex; align-items:center; justify-content:center; color:var(--purple-primary); font-size:1.4rem; font-weight:700;" id="user-avatar-initials"></div>
+          <div>
+            <h3 style="font-size:1.1rem; font-weight:700;" id="profile-display-name">Guest</h3>
+            <span class="text-muted" id="profile-email">Not signed in</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="openEditProfileModal()">Edit</button>
+      </div>
+
+      <!-- DAILY LOGIN CHECK-IN CARD -->
+      <div class="card">
+        <div class="flex-between mb-2">
+          <h3 style="font-size:1rem; font-weight:700;">Daily Login Check-In</h3>
+          <span class="badge badge-amber" id="checkin-streak-badge">0 Days Streak ⚡</span>
+        </div>
+        <p class="text-muted mb-4">Check in daily to build your activity record and unlock rewards.</p>
+        <button class="btn btn-primary btn-block" id="checkin-today-btn" onclick="performDailyCheckIn()">Check In Today</button>
+        <div class="text-muted" id="checkin-note" style="margin-top:8px;"></div>
+      </div>
+
+      <!-- 60-DAY PREMIUM REWARD MILESTONE -->
+      <div class="card" style="background: linear-gradient(135deg, var(--bg-card-subtle), var(--purple-subtle));">
+        <div class="flex-between mb-2">
+          <h3 style="font-size:0.95rem; font-weight:700; color:var(--purple-primary);">60-Day Streak Reward</h3>
+          <span class="badge badge-purple" id="checkin-progress-ratio">0/60 Days</span>
+        </div>
+        <p class="text-muted mb-2">Maintain 60 consecutive daily login check-ins to claim 1 month of free Premium.</p>
+        <div class="progress-bar-container" style="background:var(--border-color); height:8px;">
+          <div class="progress-bar-fill" id="reward-progress-fill" style="background:var(--purple-primary); width:0%;"></div>
+        </div>
+        <div id="reward-status-box" style="display:none; margin-top:12px;">
+          <div class="flex-between">
+            <span style="font-size:0.85rem; font-weight:600;">Reward Status</span>
+            <span class="badge badge-amber" id="reward-status-badge">Pending</span>
+          </div>
+          <p class="text-muted" id="reward-status-note" style="margin-top:6px;"></p>
+        </div>
+      </div>
+
+      <!-- PREMIUM MEMBERSHIP CARD -->
+      <div class="card" style="border: 2px solid var(--purple-primary);">
+        <div class="flex-between mb-2">
+          <span class="badge badge-purple">PLANORA PREMIUM</span>
+          <span id="premium-price" style="font-size:1.2rem; font-weight:800; color:var(--purple-primary);">Plans coming soon</span>
+        </div>
+        <ul style="list-style:none; padding:0; margin:12px 0; font-size:0.85rem; color:var(--text-muted);">
+          <li style="margin-bottom:6px;">✔ 100% Ad-Free Focus Experience</li>
+          <li style="margin-bottom:6px;">✔ Unlimited Mock Categories & Analytics</li>
+          <li style="margin-bottom:6px;">✔ Cloud Sync Ready Profile</li>
+        </ul>
+        <div id="premium-plans"></div>
+        <button class="btn btn-primary btn-block" id="premium-upgrade-btn" onclick="openDemoPaymentModal()">Upgrade to Premium</button>
+      </div>
+
+      <!-- CLOUD ACCOUNT CARDS (filled by Firebase module; hidden until signed in) -->
+      <div class="card" id="fb-sub-card" style="display:none;"></div>
+      <div class="card" id="fb-pay-card" style="display:none;"></div>
+      <div class="card" id="fb-hist-card" style="display:none;"></div>
+      <div class="card" id="fb-support-card" style="display:none;"></div>
+      <div class="card" id="fb-notif-card" style="display:none;"></div>
+      <div class="card" id="fb-account-card" style="display:none;"></div>
+      <div class="card" id="fb-cloud-card" style="display:none;"></div>
+
+      <!-- SETTINGS & DATA -->
+      <div class="card">
+        <h3 style="font-size:1rem; font-weight:700;" class="mb-4">Settings & Options</h3>
+        <div class="score-item" onclick="openDemoAuthModal()" style="cursor:pointer;">
+          <span>Account Auth Status</span>
+          <span class="badge badge-amber" id="auth-status-tag">Signed Out</span>
+        </div>
+        <div class="score-item" onclick="openPrivacyPolicy()" style="cursor:pointer;">
+          <span>Privacy Policy</span>
+          <span>→</span>
+        </div>
+        <div class="score-item" onclick="openTermsAndConditions()" style="cursor:pointer;">
+          <span>Terms & Conditions</span>
+          <span>→</span>
+        </div>
+        <button class="btn btn-danger btn-block mt-4" id="logout-btn" onclick="openDemoAuthModal()">Log Out</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('screen-daily', this)">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+      <span>Daily Task</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('screen-rapid', this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span>Rapid</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('screen-mock', this)">
+      <svg viewBox="0 0 24 24"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+      <span>Mock Streaks</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('screen-profile', this)">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <span>Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- GLOBAL MODALS -->
+
+<!-- ADD TASK MODAL WITH TWO-STEP CONFIRMATION -->
+<div class="modal-overlay" id="add-task-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Daily Task</h3>
+      <button class="close-modal-btn" onclick="closeModal('add-task-modal')">&times;</button>
+    </div>
+    <form id="task-form" onsubmit="handleTaskSubmit(event)">
+      <div class="form-group">
+        <label>Topic Name</label>
+        <input type="text" id="task-topic-input" class="form-control" placeholder="e.g. Physics Chapter 4" required>
+      </div>
+
+      <div class="form-group">
+        <label>Subtopics & Durations</label>
+        <div id="subtopic-inputs-container">
+          <div class="subtopic-input-group">
+            <input type="text" class="form-control subtopic-title-input" placeholder="Subtopic name" required>
+            <input type="text" class="form-control subtopic-duration-input" placeholder="30m" style="width:80px;" required>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="removeSubtopicRow(this)">&times;</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addSubtopicRow()">+ Add Subtopic</button>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+          <label>Start Time (Optional)</label>
+          <input type="time" id="task-start-time" class="form-control">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>End Time (Optional)</label>
+          <input type="time" id="task-end-time" class="form-control">
+        </div>
+      </div>
+
+      <!-- CONFIRMATION CHECKS (EXPLICIT TWO-STEP CONFIRMATION) -->
+      <div class="confirm-box">
+        <p style="font-weight:600; margin-bottom:8px;">Confirmation Requirements:</p>
+        <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; margin-bottom:6px;">
+          <input type="checkbox" id="confirm-check-1" required>
+          I confirm this task will be tracked in today's progress.
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem;">
+          <input type="checkbox" id="confirm-check-2" required>
+          I understand daily history will be preserved.
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block mt-4">Save Task</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD MOCK CATEGORY MODAL -->
+<div class="modal-overlay" id="add-mock-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Create Mock Category</h3>
+      <button class="close-modal-btn" onclick="closeModal('add-mock-modal')">&times;</button>
+    </div>
+    <form onsubmit="handleMockCategorySubmit(event)">
+      <div class="form-group">
+        <label>Category Name</label>
+        <input type="text" id="mock-cat-name" class="form-control" placeholder="e.g. Mathematics, SAT Prep" required>
+      </div>
+      <div class="form-group">
+        <label>Description (Optional)</label>
+        <input type="text" id="mock-cat-desc" class="form-control" placeholder="e.g. Weekly calculus practice tests">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block mt-4">Create Category</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD MOCK SCORE MODAL -->
+<div class="modal-overlay" id="add-score-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add Score Entry</h3>
+      <button class="close-modal-btn" onclick="closeModal('add-score-modal')">&times;</button>
+    </div>
+    <form onsubmit="handleScoreSubmit(event)">
+      <div class="form-group">
+        <label>Test / Mock Title</label>
+        <input type="text" id="score-title-input" class="form-control" placeholder="e.g. Mock Test #3" required>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+          <label>Score Obtained</label>
+          <input type="number" id="score-obtained-input" class="form-control" min="0" step="0.5" required>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Max Score</label>
+          <input type="number" id="score-max-input" class="form-control" min="1" value="100" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block mt-4">Record Score</button>
+    </form>
+  </div>
+</div>
+
+<!-- GENERIC INFO / PLACEHOLDER MODAL -->
+<div class="modal-overlay" id="info-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="info-modal-title">Info</h3>
+      <button class="close-modal-btn" onclick="closeModal('info-modal')">&times;</button>
+    </div>
+    <p id="info-modal-body" class="text-muted" style="margin-bottom:20px; line-height:1.5; white-space:pre-line;"></p>
+    <button class="btn btn-primary btn-block" onclick="closeModal('info-modal')">Got it</button>
+  </div>
+</div>
+
+<!-- SIGN-IN / REGISTER MODAL -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="auth-title">Sign In</h3>
+      <button class="close-modal-btn" onclick="closeModal('auth-modal')">&times;</button>
+    </div>
+    <form onsubmit="handleSignIn(event)" novalidate>
+      <div class="form-group" id="auth-name-group" style="display:none;">
+        <label for="auth-name">First Name</label>
+        <input type="text" id="auth-name" class="form-control" maxlength="30" placeholder="First name" autocomplete="given-name">
+        <label for="auth-lastname" style="margin-top:10px; display:block;">Last Name</label>
+        <input type="text" id="auth-lastname" class="form-control" maxlength="30" placeholder="Last name" autocomplete="family-name">
+      </div>
+      <div class="form-group">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" class="form-control" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="form-group" id="auth-pass-group" style="display:none;">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" class="form-control" placeholder="At least 8 characters" autocomplete="current-password" minlength="8">
+      </div>
+      <p class="text-muted" id="auth-notice" style="margin-bottom:8px; line-height:1.4;"></p>
+      <p id="auth-error" style="color:var(--accent-red); font-size:0.8rem; min-height:1em; margin-bottom:8px;"></p>
+      <button type="submit" id="auth-submit" class="btn btn-primary btn-block">Sign In</button>
+      <div id="auth-extra" style="display:none; margin-top:12px; text-align:center;">
+        <button type="button" class="pl-link" id="auth-toggle" onclick="PlanoraFB.toggleAuthMode()">New here? Create an account</button>
+        <button type="button" class="pl-link" id="auth-forgot" onclick="PlanoraFB.forgotPassword()">Forgot password?</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT NAME MODAL -->
+<div class="modal-overlay" id="edit-name-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Your Name</h3>
+      <button class="close-modal-btn" onclick="closeModal('edit-name-modal')">&times;</button>
+    </div>
+    <form onsubmit="handleEditNameSubmit(event)">
+      <div class="form-group" id="edit-photo-group" style="display:none;">
+        <label>Profile photo</label>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="pl-avatar" id="edit-photo-preview"></div>
+          <input type="file" id="edit-photo-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="PlanoraFB.onPhotoPicked(this)">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('edit-photo-input').click()">Choose photo</button>
+        </div>
+        <p class="text-muted" id="edit-photo-note" style="margin-top:6px;"></p>
+      </div>
+      <div class="form-group">
+        <label for="edit-name-input">Display name</label>
+        <input type="text" id="edit-name-input" class="form-control" maxlength="40" placeholder="Enter your name">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Save</button>
+    </form>
+  </div>
+</div>
+
+<!-- GENERIC CONFIRMATION MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="confirm-modal-title">Confirm</h3>
+      <button class="close-modal-btn" onclick="cancelConfirm()">&times;</button>
+    </div>
+    <p id="confirm-modal-body" class="text-muted" style="margin-bottom:20px; line-height:1.5;"></p>
+    <div style="display:flex; gap:10px;">
+      <button class="btn btn-secondary" style="flex:1;" onclick="cancelConfirm()">Cancel</button>
+      <button class="btn btn-danger" style="flex:1;" id="confirm-modal-ok" onclick="runConfirmAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Pay &amp; Submit Proof</h3>
+      <button class="close-modal-btn" onclick="closeModal('pay-modal')">&times;</button>
+    </div>
+    <div id="pay-limit-banner"></div>
+    <div class="form-group"><label>Plan</label><div id="pay-plan-list"></div></div>
+    <div id="pay-qr-block"></div>
+    <form id="pay-form" onsubmit="PlanoraFB.submitPayment(event)" novalidate>
+      <div class="form-group"><label>Amount to pay</label><div class="form-control" id="pay-amount" style="font-weight:700;">—</div></div>
+      <div class="form-group">
+        <label for="pay-utr">UTR / reference number</label>
+        <input type="text" id="pay-utr" class="form-control" maxlength="30" autocomplete="off" autocapitalize="characters" placeholder="From your UPI app's payment details">
+      </div>
+      <div class="form-group">
+        <label for="pay-txn">UPI transaction ID (optional)</label>
+        <input type="text" id="pay-txn" class="form-control" maxlength="40" autocomplete="off" autocapitalize="characters">
+      </div>
+      <div class="form-group">
+        <label for="pay-date">Payment date</label>
+        <input type="date" id="pay-date" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Payment screenshot <span class="text-muted" id="pay-shot-req"></span></label>
+        <input type="file" id="pay-file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="PlanoraFB.onProofPicked(this)">
+        <div class="pl-drop" id="pay-shot-area" onclick="document.getElementById('pay-file').click()">Tap to choose a screenshot (JPEG, PNG or WebP, max 100 KB)</div>
+        <div id="pay-shot-preview"></div>
+        <p class="text-muted" id="pay-shot-msg" style="margin-top:6px;"></p>
+      </div>
+      <div class="form-group">
+        <label for="pay-note">Note (optional)</label>
+        <textarea id="pay-note" class="form-control" rows="2" maxlength="300"></textarea>
+      </div>
+      <p id="pay-error" style="color:var(--accent-red); font-size:0.8rem; min-height:1em; margin-bottom:8px;"></p>
+      <button type="submit" id="pay-submit" class="btn btn-primary btn-block">Submit for verification</button>
+      <p class="text-muted" style="margin-top:8px; line-height:1.4;">Submitting does not activate Premium. An administrator verifies your payment first.</p>
+    </form>
+  </div>
+</div>
+
+<!-- PAYMENT DETAIL MODAL -->
+<div class="modal-overlay" id="pay-detail-modal">
+  <div class="modal-content" id="pay-detail-body"></div>
+</div>
+
+<!-- CHANGE EMAIL MODAL -->
+<div class="modal-overlay" id="email-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Change Email</h3>
+      <button class="close-modal-btn" onclick="closeModal('email-modal')">&times;</button>
+    </div>
+    <form onsubmit="PlanoraFB.submitEmailChange(event)" novalidate>
+      <div class="form-group"><label for="email-new">New email</label><input type="email" id="email-new" class="form-control" autocomplete="email"></div>
+      <div class="form-group"><label for="email-pass">Current password</label><input type="password" id="email-pass" class="form-control" autocomplete="current-password"></div>
+      <p class="text-muted" style="margin-bottom:8px; line-height:1.4;">We send a confirmation link to the new address. Your email changes only after you open that link.</p>
+      <p id="email-error" style="color:var(--accent-red); font-size:0.8rem; min-height:1em; margin-bottom:8px;"></p>
+      <button type="submit" id="email-submit" class="btn btn-primary btn-block">Send confirmation link</button>
+    </form>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Delete account</h3>
+      <button class="close-modal-btn" onclick="closeModal('delete-modal')">&times;</button>
+    </div>
+    <form onsubmit="PlanoraFB.submitDelete(event)" novalidate>
+      <p class="text-muted" style="margin-bottom:12px; line-height:1.45;">This permanently deletes your login, profile, photo, support chat, notifications and cloud backup. Payment and subscription records are kept for accounting. Data stored only on this device is not touched.</p>
+      <div class="form-group"><label for="del-pass">Current password</label><input type="password" id="del-pass" class="form-control" autocomplete="current-password"></div>
+      <p id="del-error" style="color:var(--accent-red); font-size:0.8rem; min-height:1em; margin-bottom:8px;"></p>
+      <button type="submit" id="del-submit" class="btn btn-danger btn-block">Delete my account permanently</button>
+    </form>
+  </div>
+</div>
+
+<!-- SUPPORT CHAT MODAL -->
+<div class="modal-overlay" id="support-modal">
+  <div class="modal-content pl-chat-sheet">
+    <div class="modal-header" style="margin-bottom:8px;">
+      <div>
+        <h3>Support Chat</h3>
+        <span class="text-muted" id="chat-status"></span>
+      </div>
+      <button class="close-modal-btn" onclick="PlanoraFB.closeChat()">&times;</button>
+    </div>
+    <div class="pl-chat-log" id="chat-log" aria-live="polite"></div>
+    <form class="pl-chat-form" id="chat-form" onsubmit="PlanoraFB.sendChat(event)">
+      <select id="chat-cat" class="form-control" aria-label="Topic">
+        <option>General support</option><option>Payment problem</option><option>QR code problem</option>
+        <option>UTR verification</option><option>Subscription activation</option><option>Login problem</option>
+        <option>App bug</option><option>Feature request</option><option>Suggestion</option>
+      </select>
+      <div style="display:flex; gap:8px; align-items:flex-end;">
+        <textarea id="chat-input" class="form-control" rows="1" maxlength="1000" placeholder="Type your message"></textarea>
+        <button type="submit" class="btn btn-primary" id="chat-send">Send</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="pl-toast" id="pl-toast" role="status" aria-live="polite"></div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+  /* =====================================================================
+     BACKEND ADAPTER
+     ---------------------------------------------------------------------
+     Firebase is initialised ONCE, in the <script type="module"> at the end
+     of this file, which exposes window.PlanoraFB. If that module cannot load
+     (offline / blocked) the app keeps working exactly as before in local
+     demo mode. Privileged work (subscriptions, approvals, admin) is enforced by the
+     Realtime Database Security Rules; only an admin listed in /admins can approve.
+     ===================================================================== */
+  const Backend = {
+    connected: false,
+    async init() {
+      const fb = window.PlanoraFB;
+      if (!fb) { this.connected = false; return { connected: false }; }
+      await fb.ready;
+      this.connected = !!fb.connected;
+      return { connected: this.connected };
+    },
+    async signInWithEmail(email) {            // local demo sign-in (only used when Firebase is unavailable)
+      if (this.connected) throw new Error('Please use the email + password form.');
+      return { uid: 'demo_' + email, email, verified: false, demo: true };
+    },
+    async signOut() {
+      if (this.connected && window.PlanoraFB) await window.PlanoraFB.signOut();
+    },
+    async submitRewardRequest(request) {
+      if (this.connected && window.PlanoraFB) return window.PlanoraFB.submitRewardRequest(request);
+      return { submitted: false, reason: 'backend-not-connected' };
+    }
+  };
+
+  /* GLOBAL STATE & STORAGE KEYS */
+  const STORAGE_KEY = 'PLANORA_APP_DATA_V1';
+  const TIMER_KEY = 'PLANORA_TIMER_V1';
+
+  let appData = {
+    theme: 'light',
+    session: null,          // { uid, email, demo, verified } when signed in (cleared on sign-out)
+    guestName: '',          // name typed in by a signed-out user
+    profiles: {},           // email -> { name }
+    checkInsByUser: {},     // email -> ["YYYY-MM-DD", ...] (separate from task & mock streaks)
+    rewardRequests: [],     // { id, key, email, milestone, streakStart, status, createdAt, submittedToBackend }
+    tasks: [],              // { id, topic, subtopics: [{title, duration, completed}], dateStr, startTime, endTime }
+    rapidHistory: [],       // { id, name, durationMinutes, durationSeconds, dateStr, timeStr, completed, overtimeSeconds }
+    mockCategories: [],     // { id, name, description, scores: [{ id, title, score, maxScore, dateStr }] }
+    checkIns: [],           // legacy field (unused)
+    lastActiveDate: ''
+  };
+
+  let activeMockCategoryId = null;
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  /* INITIALIZATION */
+  document.addEventListener('DOMContentLoaded', () => {
+    runSplash();
+    loadAppData();
+    initializeTheme();
+    checkDateBoundary();
+    updateHeaderGreeting();
+    renderDailyTasks();
+    renderRapidHistory();
+    renderMockCategories();
+    renderProfileView();
+    restoreTimer();
+    $('custom-h').addEventListener('keydown', e => { if (e.key === 'Enter') setCustomTimer(); });
+    $('custom-m').addEventListener('keydown', e => { if (e.key === 'Enter') setCustomTimer(); });
+    $('custom-s').addEventListener('keydown', e => { if (e.key === 'Enter') setCustomTimer(); });
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { refreshForNewDay(); tickTimer(); }
+  });
+  window.addEventListener('pagehide', () => { saveData(); saveTimer(); });
+  setInterval(refreshForNewDay, 60000);
+
+  function refreshForNewDay() {
+    if (appData.lastActiveDate !== getTodayDateStr()) {
+      checkDateBoundary();
+      updateHeaderGreeting();
+      renderDailyTasks();
+      renderProfileView();
+    }
+  }
+
+  /* SPLASH SCREEN */
+  async function runSplash() {
+    const splash = $('splash');
+    if (!splash) return;
+    const fill = $('splash-fill'), pct = $('splash-percent'), status = $('splash-status'), skip = $('splash-continue');
+    let initDone = false, initError = null;
+    const start = Date.now(), MIN_MS = 1700;
+
+    const initPromise = Promise.race([
+      Backend.init(),
+      new Promise((_, rej) => setTimeout(() => rej(new Error('Initialization timed out')), 5000))
+    ]).then(() => { initDone = true; }).catch(err => { initDone = true; initError = err; });
+
+    const setProgress = (p) => { fill.style.width = p + '%'; pct.textContent = p + '%'; splash.setAttribute('aria-valuenow', p); };
+    const hideSplash = () => { splash.classList.add('hide'); setTimeout(() => { splash.style.display = 'none'; }, 500); };
+    setTimeout(hideSplash, 9000); // failsafe: never trap the user on the splash
+
+    await new Promise(resolve => {
+      const timerId = setInterval(() => {
+        let p = Math.min(100, Math.round(((Date.now() - start) / MIN_MS) * 100));
+        if (!initDone) p = Math.min(p, 90);
+        setProgress(p);
+        if (p >= 100) { clearInterval(timerId); resolve(); }
+      }, 30);
+    });
+    await initPromise;
+
+    if (initError) {
+      status.textContent = 'Could not initialize the backend. You can continue in offline mode.';
+      skip.style.display = 'inline-flex';
+      skip.onclick = hideSplash;
+    } else {
+      status.textContent = Backend.connected ? 'Ready' : 'Offline mode · cloud features unavailable';
+      setTimeout(hideSplash, 450);
+    }
+  }
+
+  /* STORAGE LOGIC */
+  function loadAppData() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Drop legacy fabricated profile data; keep a name only if a real user typed one
+        if (parsed.user) {
+          const n = (parsed.user.name || '').trim();
+          if (n && n !== 'Alex Rivera' && !parsed.guestName) parsed.guestName = n;
+          delete parsed.user;
+        }
+        appData = { ...appData, ...parsed };
+      }
+    } catch (e) {
+      console.warn('Failed to parse local data, using defaults.', e);
+    }
+    ['tasks', 'rapidHistory', 'mockCategories', 'rewardRequests', 'checkIns'].forEach(k => { if (!Array.isArray(appData[k])) appData[k] = []; });
+    ['profiles', 'checkInsByUser'].forEach(k => { if (!appData[k] || typeof appData[k] !== 'object') appData[k] = {}; });
+    if (appData.session && !appData.session.email) appData.session = null;
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    } catch (e) {
+      console.error('Storage save failed', e);
+    }
+  }
+
+  function resetAllAppData() {
+    openConfirm({
+      title: 'Clear Local App Data?',
+      body: 'This permanently deletes ALL data stored on this device: tasks, mock categories and scores, timer history, check-ins and saved reward requests. You will also be signed out. This is different from signing out and cannot be undone.',
+      confirmText: 'Clear Everything'
+    }, async () => {
+      try { await Backend.signOut(); } catch (e) { console.warn(e); }
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TIMER_KEY);
+      location.reload();
+    });
+  }
+
+  /* THEME LOGIC */
+  function initializeTheme() {
+    const savedTheme = appData.theme || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    $('theme-toggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      appData.theme = next;
+      saveData();
+      renderTaskGraph(); // re-render charts to adapt colors
+      if (activeMockCategoryId) renderMockDetailGraph();
+    });
+  }
+
+  /* DATE BOUNDARY & TIME HELPERS (all LOCAL calendar days) */
+  function localDateStr(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function getTodayDateStr() { return localDateStr(new Date()); }
+  function fmtShort(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+
+  function checkDateBoundary() {
+    appData.lastActiveDate = getTodayDateStr();
+    saveData();
+  }
+
+  function getDisplayName() {
+    if (appData.session) return ((appData.profiles[appData.session.email] || {}).name || '').trim();
+    return (appData.guestName || '').trim();
+  }
+
+  function updateHeaderGreeting() {
+    const hour = new Date().getHours();
+    let greeting = "Good Morning";
+    if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+    else if (hour >= 17 && hour < 22) greeting = "Good Evening";
+    else if (hour >= 22 || hour < 5) greeting = "Good Night";
+
+    const first = getDisplayName().split(' ')[0];
+    $('header-greeting').innerText = first ? `${greeting}, ${first}` : greeting;
+
+    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    $('current-date-str').innerText = new Date().toLocaleDateString('en-US', options);
+  }
+
+  /* SCREEN NAVIGATION */
+  function switchTab(screenId, btnElement) {
+    document.querySelectorAll('.tab-screen').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+    $(screenId).classList.add('active');
+    if (btnElement) btnElement.classList.add('active');
+
+    if (screenId === 'screen-daily') renderTaskGraph();
+    if (screenId === 'screen-profile') renderProfileView();
+    if (screenId === 'screen-rapid') renderTimerUI();
+  }
+
+  function goToTab(screenId) {
+    const btn = [...document.querySelectorAll('.nav-item')].find(b => (b.getAttribute('onclick') || '').includes("'" + screenId + "'"));
+    switchTab(screenId, btn);
+  }
+
+  /* MODAL HELPERS */
+  function openModal(id) { $(id).classList.add('active'); }
+  function closeModal(id) { $(id).classList.remove('active'); }
+
+  function openPlaceholderModal(title, body) {
+    $('info-modal-title').innerText = title;
+    $('info-modal-body').innerText = body;
+    openModal('info-modal');
+  }
+
+  let confirmAction = null;
+  function openConfirm(opts, onConfirm) {
+    $('confirm-modal-title').textContent = opts.title;
+    $('confirm-modal-body').textContent = opts.body;
+    $('confirm-modal-ok').textContent = opts.confirmText || 'Confirm';
+    confirmAction = onConfirm;
+    openModal('confirm-modal');
+  }
+  function cancelConfirm() { confirmAction = null; closeModal('confirm-modal'); }
+  function runConfirmAction() {
+    const fn = confirmAction;
+    confirmAction = null;
+    closeModal('confirm-modal');
+    if (fn) fn();
+  }
+
+  /* SCREEN 1: DAILY TASK LOGIC */
+  function openAddTaskModal() {
+    $('task-form').reset();
+    $('subtopic-inputs-container').innerHTML = `
+      <div class="subtopic-input-group">
+        <input type="text" class="form-control subtopic-title-input" placeholder="Subtopic name" required>
+        <input type="text" class="form-control subtopic-duration-input" placeholder="30m" style="width:80px;" required>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="removeSubtopicRow(this)">&times;</button>
+      </div>
+    `;
+    openModal('add-task-modal');
+  }
+
+  function addSubtopicRow() {
+    const container = $('subtopic-inputs-container');
+    const row = document.createElement('div');
+    row.className = 'subtopic-input-group';
+    row.innerHTML = `
+      <input type="text" class="form-control subtopic-title-input" placeholder="Subtopic name" required>
+      <input type="text" class="form-control subtopic-duration-input" placeholder="20m" style="width:80px;" required>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="removeSubtopicRow(this)">&times;</button>
+    `;
+    container.appendChild(row);
+  }
+
+  function removeSubtopicRow(btn) {
+    const container = $('subtopic-inputs-container');
+    if (container.children.length > 1) btn.parentElement.remove();
+  }
+
+  function handleTaskSubmit(e) {
+    e.preventDefault();
+    const topic = $('task-topic-input').value.trim();
+    const startTime = $('task-start-time').value;
+    const endTime = $('task-end-time').value;
+
+    const subtopics = [];
+    document.querySelectorAll('#subtopic-inputs-container .subtopic-input-group').forEach(row => {
+      const t = row.querySelector('.subtopic-title-input').value.trim();
+      const d = row.querySelector('.subtopic-duration-input').value.trim();
+      if (t) subtopics.push({ title: t, duration: d, completed: false });
+    });
+    if (!topic || subtopics.length === 0) return;
+
+    appData.tasks.push({
+      id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      topic, subtopics, startTime, endTime,
+      dateStr: getTodayDateStr()
+    });
+    saveData();
+    closeModal('add-task-modal');
+    renderDailyTasks();
+  }
+
+  function toggleSubtopic(taskId, subtopicIndex) {
+    const task = appData.tasks.find(t => t.id === taskId);
+    if (task && task.subtopics[subtopicIndex]) {
+      task.subtopics[subtopicIndex].completed = !task.subtopics[subtopicIndex].completed;
+      saveData();
+      renderDailyTasks(); // also re-renders the graph
+    }
+  }
+
+  function deleteTask(taskId) {
+    if (confirm("Delete this task record?")) {
+      appData.tasks = appData.tasks.filter(t => t.id !== taskId);
+      saveData();
+      renderDailyTasks();
+    }
+  }
+
+  function dayStats(dStr) {
+    let total = 0, done = 0;
+    appData.tasks.forEach(t => {
+      if (t.dateStr === dStr) t.subtopics.forEach(st => { total++; if (st.completed) done++; });
+    });
+    return { total, done };
+  }
+
+  function calculateDailyStreak() {
+    const todayStr = getTodayDateStr();
+    let streak = 0;
+    let curr = new Date();
+    for (let guard = 0; guard < 5000; guard++) {
+      const dStr = localDateStr(curr);
+      const s = dayStats(dStr);
+      if (s.total > 0 && s.done === s.total) {
+        streak++;
+        curr = addDays(curr, -1);
+      } else if (dStr === todayStr) {
+        curr = addDays(curr, -1); // today not finished yet: look at yesterday
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  function renderDailyTasks() {
+    const container = $('tasks-container');
+    const todayStr = getTodayDateStr();
+    const todayTasks = appData.tasks.filter(t => t.dateStr === todayStr);
+
+    let totalSubtopics = 0;
+    let completedSubtopics = 0;
+
+    if (todayTasks.length === 0) {
+      container.innerHTML = `
+        <div class="card empty-state">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke-width="2"/></svg>
+          <p>No tasks scheduled for today yet.<br>Click <strong>+ Add Task</strong> above to get started.</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = '';
+      todayTasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'card task-card';
+
+        let subtopicsHTML = '';
+        task.subtopics.forEach((st, idx) => {
+          totalSubtopics++;
+          if (st.completed) completedSubtopics++;
+
+          subtopicsHTML += `
+            <div class="subtopic-item">
+              <div class="checkbox-custom ${st.completed ? 'checked' : ''}" onclick="toggleSubtopic('${task.id}', ${idx})">
+                ${st.completed ? '✓' : ''}
+              </div>
+              <span class="subtopic-title ${st.completed ? 'completed' : ''}">${esc(st.title)}</span>
+              <span class="subtopic-duration">${esc(st.duration)}</span>
+            </div>
+          `;
+        });
+
+        const timeStr = (task.startTime || task.endTime) ?
+          `<span class="badge badge-purple" style="font-size:0.7rem;">${esc(task.startTime || '')} - ${esc(task.endTime || '')}</span>` : '';
+
+        card.innerHTML = `
+          <div class="task-card-header">
+            <div>
+              <div class="task-title">${esc(task.topic)}</div>
+              ${timeStr}
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')" style="padding:2px 6px;">&times;</button>
+          </div>
+          <div>${subtopicsHTML}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    const percent = totalSubtopics > 0 ? Math.round((completedSubtopics / totalSubtopics) * 100) : 0;
+    $('completion-ratio').innerText = `${completedSubtopics}/${totalSubtopics} Subtopics Done`;
+    $('progress-percent').innerText = `${percent}%`;
+    $('daily-progress-fill').style.width = `${percent}%`;
+    $('task-count-badge').innerText = `${todayTasks.length} tasks`;
+    $('task-streak-count').innerText = `${calculateDailyStreak()} 🔥`;
+
+    renderTaskGraph();
+  }
+
+  function renderTaskGraph() {
+    const wrapper = $('task-chart-wrapper');
+    const viewType = $('graph-view-select').value;
+    const today = new Date();
+    const bars = [];
+    let rangeText = '';
+
+    if (viewType === 'weekly') {
+      // Last 4 rolling weeks (7 days each), oldest first
+      for (let w = 3; w >= 0; w--) {
+        const end = addDays(today, -7 * w);
+        const start = addDays(end, -6);
+        let total = 0, done = 0;
+        for (let i = 0; i < 7; i++) {
+          const s = dayStats(localDateStr(addDays(start, i)));
+          total += s.total; done += s.done;
+        }
+        const sameMonth = start.getMonth() === end.getMonth();
+        bars.push({
+          l1: fmtShort(start),
+          l2: '– ' + (sameMonth ? end.getDate() : fmtShort(end)),
+          pct: total > 0 ? Math.round((done / total) * 100) : 0
+        });
+      }
+      rangeText = `Last 4 weeks: ${fmtShort(addDays(today, -27))} – ${fmtShort(today)}, ${today.getFullYear()}`;
+    } else {
+      for (let i = 6; i >= 0; i--) {
+        const d = addDays(today, -i);
+        const s = dayStats(localDateStr(d));
+        bars.push({
+          l1: d.toLocaleDateString('en-US', { weekday: 'short' }),
+          l2: String(d.getDate()),
+          pct: s.total > 0 ? Math.round((s.done / s.total) * 100) : 0
+        });
+      }
+      rangeText = `Last 7 days: ${fmtShort(addDays(today, -6))} – ${fmtShort(today)}, ${today.getFullYear()}`;
+    }
+    $('graph-range-label').innerText = rangeText;
+
+    const width = 280, height = 132, axisY = height - 30;
+    const barWidth = viewType === 'weekly' ? 36 : 24;
+    const gap = (width - (bars.length * barWidth)) / (bars.length + 1);
+    let barsHTML = '';
+
+    bars.forEach((b, i) => {
+      const x = gap + i * (barWidth + gap);
+      const barHeight = (b.pct / 100) * (axisY - 18);
+      const y = axisY - barHeight;
+      barsHTML += `
+        <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="4" fill="var(--purple-primary)" opacity="${b.pct > 0 ? '0.9' : '0.2'}"/>
+        <text x="${x + barWidth / 2}" y="${axisY + 11}" font-size="8.5" fill="var(--text-muted)" text-anchor="middle">${esc(b.l1)}</text>
+        <text x="${x + barWidth / 2}" y="${axisY + 22}" font-size="8.5" fill="var(--text-muted)" text-anchor="middle">${esc(b.l2)}</text>
+        <text x="${x + barWidth / 2}" y="${y - 4}" font-size="9" fill="var(--text-main)" font-weight="bold" text-anchor="middle">${b.pct}%</text>
+      `;
+    });
+
+    wrapper.innerHTML = `
+      <svg class="svg-chart" viewBox="0 0 ${width} ${height}">
+        <line x1="0" y1="${axisY}" x2="${width}" y2="${axisY}" stroke="var(--border-color)" stroke-width="1"/>
+        ${barsHTML}
+      </svg>
+    `;
+  }
+
+  /* SCREEN 2: RAPID TIMER LOGIC
+     Uses absolute timestamps (Date.now) so it stays accurate when the tab is
+     inactive, and persists to localStorage so it survives closing/reopening. */
+  let timer = { state: 'idle', totalSec: 25 * 60, remainingMs: 25 * 60 * 1000, endTs: 0, name: '', sessionId: null };
+  let timerInterval = null;
+  let audioCtx = null;
+
+  function saveTimer() { try { localStorage.setItem(TIMER_KEY, JSON.stringify(timer)); } catch (e) {} }
+
+  function restoreTimer() {
+    try {
+      const s = JSON.parse(localStorage.getItem(TIMER_KEY) || 'null');
+      if (s && typeof s === 'object' && s.totalSec > 0) timer = { ...timer, ...s };
+    } catch (e) {}
+    if (timer.state === 'running') { startInterval(); tickTimer(true); }
+    else if (timer.state === 'overtime') { startInterval(); }
+    renderTimerUI();
+  }
+
+  function startInterval() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => tickTimer(), 250);
+  }
+  function stopInterval() { clearInterval(timerInterval); timerInterval = null; }
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function fmtHMS(sec) {
+    sec = Math.max(0, Math.floor(sec));
+    return `${pad2(Math.floor(sec / 3600))}:${pad2(Math.floor((sec % 3600) / 60))}:${pad2(sec % 60)}`;
+  }
+  function fmtCountdown(sec, total) {
+    if (total >= 3600) return fmtHMS(sec);
+    return `${pad2(Math.floor(sec / 60))}:${pad2(sec % 60)}`;
+  }
+  function fmtDurationLabel(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    const parts = [];
+    if (h) parts.push(h + 'h'); if (m) parts.push(m + 'm'); if (s) parts.push(s + 's');
+    return parts.join(' ') || '0s';
+  }
+
+  function tickTimer(fromRestore) {
+    const now = Date.now();
+    if (timer.state === 'running') {
+      const left = timer.endTs - now;
+      if (left <= 0) { completeTimerSession(!!fromRestore); return; }
+      timer.remainingMs = left;
+    } else if (timer.state === 'overtime') {
+      const rec = appData.rapidHistory.find(r => r.id === timer.sessionId);
+      if (rec) {
+        const ot = Math.max(0, Math.floor((now - timer.endTs) / 1000));
+        if (rec.overtimeSeconds !== ot) { rec.overtimeSeconds = ot; if (ot % 5 === 0) saveData(); }
+      }
+    }
+    renderTimerUI();
+  }
+
+  function renderTimerUI() {
+    const total = timer.totalSec;
+    let leftSec;
+    if (timer.state === 'idle') leftSec = total;
+    else if (timer.state === 'overtime') leftSec = 0;
+    else if (timer.state === 'running') leftSec = Math.max(0, Math.ceil((timer.endTs - Date.now()) / 1000));
+    else leftSec = Math.ceil(timer.remainingMs / 1000);
+
+    $('timer-time-display').innerText = fmtCountdown(leftSec, total);
+
+    const ring = $('timer-progress-ring');
+    const circumference = 2 * Math.PI * 110;
+    ring.style.strokeDashoffset = circumference - (leftSec / total) * circumference;
+
+    const btn = $('timer-start-btn'), label = $('timer-status-label'), ot = $('timer-overtime');
+    const map = {
+      idle: ['Start', 'Ready'],
+      running: ['Pause', 'Focusing...'],
+      paused: ['Resume', 'Paused'],
+      overtime: ['Start', "Time's up! Completed 🎉"]
+    };
+    btn.innerText = map[timer.state][0];
+    label.innerText = map[timer.state][1];
+
+    if (timer.state === 'overtime') {
+      ot.style.display = 'block';
+      $('timer-overtime-value').innerText = '+' + fmtHMS((Date.now() - timer.endTs) / 1000);
+    } else {
+      ot.style.display = 'none';
+    }
+  }
+
+  function ensureAudio() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {}
+  }
+
+  function beep() {
+    try {
+      ensureAudio();
+      if (!audioCtx) return;
+      [0, 0.35, 0.7].forEach(offset => {
+        const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + offset);
+        gain.gain.exponentialRampToValueAtTime(0.4, audioCtx.currentTime + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + offset + 0.28);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + offset); osc.stop(audioCtx.currentTime + offset + 0.3);
+      });
+    } catch (e) {}
+  }
+
+  function notifyTimerDone(late) {
+    if (!late) beep();
+    try { if (!late && navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 700]); } catch (e) {}
+    try {
+      if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+        new Notification('Planora timer complete', { body: `${timer.name || 'Focus Session'} (${fmtDurationLabel(timer.totalSec)}) is done.` });
+      }
+    } catch (e) {}
+  }
+
+  function applyTimerDuration(sec) {
+    if (timer.state === 'overtime') finalizeOvertime();
+    stopInterval();
+    timer.state = 'idle';
+    timer.totalSec = sec;
+    timer.remainingMs = sec * 1000;
+    timer.sessionId = null;
+    saveTimer();
+    renderTimerUI();
+  }
+
+  function setTimerPreset(mins) {
+    $('custom-timer-error').innerText = '';
+    applyTimerDuration(mins * 60);
+  }
+
+  function setCustomTimer() {
+    const h = parseInt($('custom-h').value, 10) || 0;
+    const m = parseInt($('custom-m').value, 10) || 0;
+    const s = parseInt($('custom-s').value, 10) || 0;
+    const err = $('custom-timer-error');
+    if (h < 0 || m < 0 || s < 0) { err.innerText = 'Values cannot be negative.'; return; }
+    const sec = h * 3600 + m * 60 + s;
+    if (sec <= 0) { err.innerText = 'Enter a duration greater than zero.'; return; }
+    if (sec > 359999) { err.innerText = 'Maximum duration is 99:59:59.'; return; }
+    err.innerText = '';
+    applyTimerDuration(sec);
+  }
+
+  function toggleTimer() {
+    if (timer.state === 'running') pauseTimer(); else startTimer();
+  }
+
+  function startTimer() {
+    if (timer.state === 'overtime') finalizeOvertime();
+    ensureAudio();
+    try {
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    } catch (e) {}
+    if (timer.state === 'idle') {
+      timer.remainingMs = timer.totalSec * 1000;
+      timer.name = $('timer-session-name').value.trim() || 'Focus Session';
+      timer.sessionId = null;
+    }
+    timer.state = 'running';
+    timer.endTs = Date.now() + timer.remainingMs;
+    saveTimer();
+    startInterval();
+    renderTimerUI();
+  }
+
+  function pauseTimer() {
+    if (timer.state !== 'running') return;
+    timer.remainingMs = Math.max(0, timer.endTs - Date.now());
+    timer.state = 'paused';
+    stopInterval();
+    saveTimer();
+    renderTimerUI();
+  }
+
+  function finalizeOvertime() {
+    const rec = appData.rapidHistory.find(r => r.id === timer.sessionId);
+    if (rec) { rec.overtimeSeconds = Math.max(0, Math.floor((Date.now() - timer.endTs) / 1000)); saveData(); renderRapidHistory(); }
+    stopInterval();
+    timer.state = 'idle';
+    timer.remainingMs = timer.totalSec * 1000;
+    timer.sessionId = null;
+    saveTimer();
+  }
+
+  function resetTimer() {
+    if (timer.state === 'overtime') finalizeOvertime();
+    stopInterval();
+    timer.state = 'idle';
+    timer.remainingMs = timer.totalSec * 1000;
+    timer.sessionId = null;
+    saveTimer();
+    renderTimerUI();
+  }
+
+  function stopTimer() {
+    if (timer.state === 'idle') return;
+    if (timer.state === 'overtime') { finalizeOvertime(); renderTimerUI(); return; }
+    // Stopped before finishing: log the partial session if at least 1 second elapsed
+    const leftMs = timer.state === 'running' ? Math.max(0, timer.endTs - Date.now()) : timer.remainingMs;
+    const elapsed = Math.round(timer.totalSec - leftMs / 1000);
+    if (elapsed >= 1) {
+      const now = new Date();
+      appData.rapidHistory.unshift({
+        id: 'rap_' + Date.now(), name: timer.name || 'Focus Session',
+        durationMinutes: Math.round(elapsed / 60), durationSeconds: elapsed,
+        dateStr: localDateStr(now),
+        timeStr: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        completed: false, overtimeSeconds: 0
+      });
+      saveData();
+      renderRapidHistory();
+    }
+    resetTimer();
+  }
+
+  function completeTimerSession(late) {
+    const endedAt = new Date(timer.endTs);
+    timer.state = 'overtime';
+    timer.remainingMs = 0;
+    const name = timer.name || 'Focus Session';
+    const rec = {
+      id: 'rap_' + Date.now(), name,
+      durationMinutes: Math.round(timer.totalSec / 60), durationSeconds: timer.totalSec,
+      dateStr: localDateStr(endedAt),
+      timeStr: endedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      completed: true,
+      overtimeSeconds: Math.max(0, Math.floor((Date.now() - timer.endTs) / 1000))
+    };
+    timer.sessionId = rec.id;
+    appData.rapidHistory.unshift(rec);
+    saveData(); saveTimer();
+    renderRapidHistory();
+    notifyTimerDone(late);
+    startInterval();
+    renderTimerUI();
+
+    const label = fmtDurationLabel(timer.totalSec);
+    openPlaceholderModal('Session Complete! 🎉', late
+      ? `Your ${label} timer "${name}" finished at ${rec.timeStr} while the app was closed or in the background. Overtime is being counted.`
+      : `Great job! You completed "${name}" (${label}). Extra time is now being counted as overtime.`);
+  }
+
+  function renderRapidHistory() {
+    const container = $('rapid-history-list');
+    if (appData.rapidHistory.length === 0) {
+      container.innerHTML = `<p class="text-muted" style="text-align:center; padding:12px;">No sessions recorded yet.</p>`;
+      return;
+    }
+
+    let html = '';
+    appData.rapidHistory.slice(0, 5).forEach(item => {
+      let dur;
+      if (item.durationSeconds == null) dur = `${item.durationMinutes} mins`;
+      else if (item.durationSeconds >= 60 && item.durationSeconds < 3600 && item.durationSeconds % 60 === 0) dur = `${item.durationSeconds / 60} mins`;
+      else dur = fmtDurationLabel(item.durationSeconds);
+      const otBadge = item.overtimeSeconds > 0 ? `<span class="badge badge-amber" style="margin-left:4px; font-size:0.7rem;">+${fmtHMS(item.overtimeSeconds)}</span>` : '';
+      html += `
+        <div class="score-item">
+          <div>
+            <strong style="font-size:0.9rem;">${esc(item.name)}</strong>
+            <div class="text-muted">${esc(item.dateStr)} at ${esc(item.timeStr || '')}</div>
+          </div>
+          <div>
+            <span class="badge ${item.completed === false ? 'badge-amber' : 'badge-green'}">${dur}${item.completed === false ? ' (stopped)' : ''}</span>${otBadge}
+            <button class="btn btn-secondary btn-sm" onclick="deleteRapidSession('${item.id}')" style="margin-left:6px; padding:2px 6px;">&times;</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  function deleteRapidSession(id) {
+    if (confirm("Delete this session record?")) {
+      appData.rapidHistory = appData.rapidHistory.filter(s => s.id !== id);
+      saveData();
+      renderRapidHistory();
+    }
+  }
+
+  function clearRapidHistory() {
+    if (confirm("Clear all focus history?")) {
+      appData.rapidHistory = [];
+      saveData();
+      renderRapidHistory();
+    }
+  }
+
+  /* SCREEN 3: MOCK STREAKS LOGIC */
+  function openAddMockCategoryModal() {
+    $('mock-cat-name').value = '';
+    $('mock-cat-desc').value = '';
+    openModal('add-mock-modal');
+  }
+
+  function handleMockCategorySubmit(e) {
+    e.preventDefault();
+    const name = $('mock-cat-name').value.trim();
+    const desc = $('mock-cat-desc').value.trim();
+    if (!name) return;
+
+    appData.mockCategories.push({
+      id: 'mock_cat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      name, description: desc, scores: []
+    });
+    saveData();
+    closeModal('add-mock-modal');
+    renderMockCategories();
+  }
+
+  function calculateMockStreak(category) {
+    if (!category.scores || category.scores.length === 0) return 0;
+    const dates = new Set(category.scores.map(s => s.dateStr));
+    const todayStr = getTodayDateStr();
+    let streak = 0;
+    let curr = new Date();
+    for (let guard = 0; guard < 5000; guard++) {
+      const dStr = localDateStr(curr);
+      if (dates.has(dStr)) { streak++; curr = addDays(curr, -1); }
+      else if (dStr === todayStr) { curr = addDays(curr, -1); }
+      else break;
+    }
+    return streak;
+  }
+
+  function calculateBestMockStreak(category) {
+    if (!category.scores || category.scores.length === 0) return 0;
+    const days = [...new Set(category.scores.map(s => s.dateStr))].sort().map(s => {
+      const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d);
+    });
+    let best = 1, run = 1;
+    for (let i = 1; i < days.length; i++) {
+      run = Math.round((days[i] - days[i - 1]) / 86400000) === 1 ? run + 1 : 1;
+      if (run > best) best = run;
+    }
+    return best;
+  }
+
+  function renderMockCategories() {
+    const grid = $('mock-categories-grid');
+    if (appData.mockCategories.length === 0) {
+      grid.innerHTML = `
+        <div class="card empty-state">
+          <p>No mock test categories found.<br>Create one like <strong>Mathematics</strong> or <strong>SAT Prep</strong> to track test streaks.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    appData.mockCategories.forEach(cat => {
+      const streak = calculateMockStreak(cat);
+      const latestScoreObj = cat.scores[cat.scores.length - 1];
+      const latestScoreText = latestScoreObj ? `${latestScoreObj.score}/${latestScoreObj.maxScore}` : 'No scores';
+
+      html += `
+        <div class="card" style="cursor:pointer;" onclick="openMockDetail('${cat.id}')">
+          <div class="flex-between mb-2">
+            <h3 style="font-size:1.1rem; font-weight:700;">${esc(cat.name)}</h3>
+            <span class="badge badge-purple">${streak} Day Streak 🔥</span>
+          </div>
+          <p class="text-muted mb-2">${esc(cat.description || 'Subject Mock Tracker')}</p>
+          <div class="flex-between" style="font-size:0.85rem;">
+            <span>Latest Score: <strong>${latestScoreText}</strong></span>
+            <span style="color:var(--purple-primary); font-weight:600;">View Details →</span>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-color);">
+            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); requestDeleteMockCategory('${cat.id}')" aria-label="Delete category ${esc(cat.name)}">🗑 Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    grid.innerHTML = html;
+  }
+
+  function requestDeleteMockCategory(catId) {
+    const cat = appData.mockCategories.find(c => c.id === catId);
+    if (!cat) return;
+    const n = (cat.scores || []).length;
+    openConfirm({
+      title: 'Delete Category?',
+      body: `You are about to permanently delete the category "${cat.name}" and its ${n} score record${n === 1 ? '' : 's'}. Your other categories are not affected. This cannot be undone.`,
+      confirmText: 'Delete'
+    }, () => deleteMockCategory(catId));
+  }
+
+  function deleteMockCategory(catId) {
+    appData.mockCategories = appData.mockCategories.filter(c => c.id !== catId);
+    if (activeMockCategoryId === catId) {
+      activeMockCategoryId = null;
+      $('mock-detail-view').style.display = 'none';
+      $('mock-dashboard-view').style.display = 'block';
+    }
+    saveData();
+    renderMockCategories();
+  }
+
+  function openMockDetail(catId) {
+    activeMockCategoryId = catId;
+    const cat = appData.mockCategories.find(c => c.id === catId);
+    if (!cat) return;
+
+    $('mock-dashboard-view').style.display = 'none';
+    $('mock-detail-view').style.display = 'block';
+
+    $('detail-category-title').innerText = cat.name;
+    $('detail-category-desc').innerText = cat.description || 'Dedicated Subject Analytics';
+
+    const streak = calculateMockStreak(cat);
+    $('detail-category-streak').innerText = `${streak} Day Streak 🔥`;
+    $('detail-best-streak').innerText = `${calculateBestMockStreak(cat)} Days`;
+
+    const latest = cat.scores[cat.scores.length - 1];
+    $('detail-latest-score').innerText = latest ? `${latest.score}/${latest.maxScore} (${Math.round(latest.score / latest.maxScore * 100)}%)` : 'N/A';
+
+    renderMockScoreHistory(cat);
+    renderMockDetailGraph();
+  }
+
+  function closeMockDetail() {
+    activeMockCategoryId = null;
+    $('mock-detail-view').style.display = 'none';
+    $('mock-dashboard-view').style.display = 'block';
+    renderMockCategories();
+  }
+
+  function openAddScoreModal() {
+    $('score-title-input').value = '';
+    $('score-obtained-input').value = '';
+    openModal('add-score-modal');
+  }
+
+  function handleScoreSubmit(e) {
+    e.preventDefault();
+    if (!activeMockCategoryId) return;
+
+    const cat = appData.mockCategories.find(c => c.id === activeMockCategoryId);
+    if (!cat) return;
+
+    const title = $('score-title-input').value.trim();
+    const score = parseFloat($('score-obtained-input').value);
+    const maxScore = parseFloat($('score-max-input').value);
+
+    if (score > maxScore) {
+      alert("Score obtained cannot exceed maximum score.");
+      return;
+    }
+
+    cat.scores.push({
+      id: 'score_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+      title, score, maxScore,
+      dateStr: getTodayDateStr()
+    });
+
+    saveData();
+    closeModal('add-score-modal');
+    openMockDetail(activeMockCategoryId);
+  }
+
+  function renderMockScoreHistory(cat) {
+    const list = $('mock-score-history-list');
+    if (!cat.scores || cat.scores.length === 0) {
+      list.innerHTML = `<p class="text-muted" style="text-align:center; padding:12px;">No score records added yet.</p>`;
+      return;
+    }
+
+    let html = '';
+    [...cat.scores].reverse().forEach(s => {
+      const pct = Math.round((s.score / s.maxScore) * 100);
+      html += `
+        <div class="score-item">
+          <div>
+            <strong>${esc(s.title)}</strong>
+            <div class="text-muted">${esc(s.dateStr)}</div>
+          </div>
+          <div style="text-align:right;">
+            <div><strong>${s.score} / ${s.maxScore}</strong></div>
+            <span class="badge ${pct >= 75 ? 'badge-green' : 'badge-amber'}">${pct}%</span>
+            <button class="btn btn-secondary btn-sm" onclick="deleteMockScore('${s.id}')" style="margin-left:6px; padding:2px 6px;">&times;</button>
+          </div>
+        </div>
+      `;
+    });
+    list.innerHTML = html;
+  }
+
+  function deleteMockScore(scoreId) {
+    if (confirm("Delete this score entry?")) {
+      const cat = appData.mockCategories.find(c => c.id === activeMockCategoryId);
+      if (cat) {
+        cat.scores = cat.scores.filter(s => s.id !== scoreId);
+        saveData();
+        openMockDetail(activeMockCategoryId);
+      }
+    }
+  }
+
+  function renderMockDetailGraph() {
+    const wrapper = $('mock-score-chart-wrapper');
+    const cat = appData.mockCategories.find(c => c.id === activeMockCategoryId);
+    if (!cat || !cat.scores || cat.scores.length === 0) {
+      wrapper.innerHTML = `<div class="empty-state"><p>Add scores to generate line graph</p></div>`;
+      return;
+    }
+
+    const scores = cat.scores.slice(-6); // last 6 entries
+    const width = 280, height = 120;
+    const points = scores.map((s, idx) => {
+      const x = (idx / Math.max(1, scores.length - 1)) * (width - 40) + 20;
+      const pct = s.score / s.maxScore;
+      const y = height - 20 - (pct * (height - 40));
+      return { x, y, pct: Math.round(pct * 100) };
+    });
+
+    let pointsPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+    let dotsHTML = points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--purple-primary)"/>`).join('');
+
+    wrapper.innerHTML = `
+      <svg class="svg-chart" viewBox="0 0 ${width} ${height}">
+        <path d="${pointsPath}" fill="none" stroke="var(--purple-primary)" stroke-width="3"/>
+        ${dotsHTML}
+      </svg>
+    `;
+  }
+
+  /* SCREEN 4: PROFILE, SIGN-IN & DAILY CHECK-IN LOGIC */
+  const DEFAULT_AVATAR = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+  const REWARD_MSG = "Congratulations! You have completed 60 consecutive check-ins. Your free Premium reward request has been submitted. Please allow up to 24 hours for admin verification.";
+  const REWARD_MSG_UNVERIFIED = "Congratulations on 60 check-ins on this device!\n\nThe server could not yet verify a 60-day streak, because only check-ins made while signed in and online are counted. Keep checking in while signed in and your reward request will be submitted automatically.";
+  const REWARD_MSG_LOCAL = "Congratulations! You have completed 60 consecutive check-ins and are eligible for 1 month of free Premium.\n\nFirebase is not connected yet, so this request is saved on this device only. No admin has been notified and nothing has been approved. Firebase integration is required for admin notification, verification and reward approval.";
+
+  function openSignIn() {
+    $('auth-email').value = '';
+    $('auth-error').textContent = '';
+    $('auth-notice').textContent = Backend.connected
+      ? ""
+      : "Cloud sign-in is unavailable right now (offline), so this is a local demo sign-in: your email is NOT verified and is stored on this device only.";
+    if (Backend.connected && window.PlanoraFB) window.PlanoraFB.prepareAuthModal();
+    else { $('auth-title').textContent = 'Sign In'; $('auth-pass-group').style.display = 'none'; $('auth-name-group').style.display = 'none'; $('auth-extra').style.display = 'none'; $('auth-submit').textContent = 'Sign In'; }
+    openModal('auth-modal');
+  }
+
+  async function handleSignIn(e) {
+    if (Backend.connected && window.PlanoraFB) { return window.PlanoraFB.submitAuthForm(e); }
+    e.preventDefault();
+    const email = $('auth-email').value.trim().toLowerCase();
+    const err = $('auth-error');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = 'Please enter a valid email address.'; return; }
+    const btn = $('auth-submit');
+    btn.disabled = true;
+    try {
+      const u = await Backend.signInWithEmail(email);
+      appData.session = { uid: u.uid, email: u.email, demo: !!u.demo, verified: !!u.verified };
+      if (!appData.profiles[u.email]) appData.profiles[u.email] = { name: '' };
+      saveData();
+      closeModal('auth-modal');
+      updateHeaderGreeting();
+      renderProfileView();
+    } catch (error) {
+      err.textContent = 'Sign-in failed: ' + (error.message || 'please try again.');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function openDemoAuthModal() {
+    if (!appData.session) { openSignIn(); return; }
+    openConfirm({
+      title: 'Log Out?',
+      body: `You are signed in as ${appData.session.email}. Are you sure you want to log out? This ends this session only. Your saved tasks, mock scores, timer history and check-ins stay on this device and return when you sign in again.`,
+      confirmText: 'Log Out'
+    }, signOutUser);
+  }
+
+  async function signOutUser() {
+    try { await Backend.signOut(); } catch (e) { console.warn('Sign-out error', e); }
+    appData.session = null;   // clears auth state + name/email shown from this session
+    saveData();
+    updateHeaderGreeting();
+    renderProfileView();
+    goToTab('screen-profile');
+  }
+
+  function userCheckIns() {
+    return appData.session ? (appData.checkInsByUser[appData.session.email] || []) : [];
+  }
+
+  function checkInStreakInfo() {
+    const set = new Set(userCheckIns());
+    const todayStr = getTodayDateStr();
+    let d = new Date();
+    if (!set.has(todayStr)) d = addDays(d, -1);
+    let n = 0;
+    while (set.has(localDateStr(d)) && n < 5000) { n++; d = addDays(d, -1); }
+    return { streak: n, start: localDateStr(addDays(d, 1)), doneToday: set.has(todayStr) };
+  }
+
+  async function performDailyCheckIn() {
+    if (!appData.session) { openSignIn(); return; }
+    const todayStr = getTodayDateStr();
+    const list = appData.checkInsByUser[appData.session.email] || (appData.checkInsByUser[appData.session.email] = []);
+    if (list.includes(todayStr)) {
+      openPlaceholderModal('Already Checked In', 'You have already completed your daily login check-in for today!');
+      return;
+    }
+    list.push(todayStr);
+    list.sort();
+    saveData();
+    if (Backend.connected && window.PlanoraFB && !appData.session.demo) window.PlanoraFB.recordCheckIn(todayStr);
+
+    const info = checkInStreakInfo();
+    renderProfileView();
+    if (info.streak >= 60) {
+      const created = await maybeCreateRewardRequest(info);
+      if (created) return;
+    }
+    openPlaceholderModal('Check-In Successful! ⚡', 'Daily login streak recorded. Keep it up!');
+  }
+
+  async function maybeCreateRewardRequest(info) {
+    const email = appData.session.email;
+    const key = `${email}|60day|${info.start}`;
+    if (appData.rewardRequests.some(r => r.key === key)) return false; // no duplicates for the same milestone
+    const req = {
+      id: 'rw_' + Date.now(), key, email, uid: appData.session.uid,
+      milestone: 60, streakStart: info.start, status: 'Pending',
+      createdAt: new Date().toISOString(), submittedToBackend: false
+    };
+    appData.rewardRequests.push(req);
+    saveData();
+    try {
+      const res = await Backend.submitRewardRequest(req);
+      if (res && res.submitted) { req.submittedToBackend = true; saveData(); }
+      else if (res && res.reason) { req.backendReason = res.reason; saveData(); }
+    } catch (e) { console.warn('Reward submit failed', e); }
+    renderProfileView();
+    openPlaceholderModal('60-Day Milestone Reached 🎉', req.submittedToBackend ? REWARD_MSG : (req.backendReason === 'not-eligible' ? REWARD_MSG_UNVERIFIED : REWARD_MSG_LOCAL));
+    return true;
+  }
+
+  function renderProfileView() {
+    const s = appData.session;
+    const name = getDisplayName();
+    $('profile-display-name').innerText = name || (s ? 'Name not set' : 'Guest');
+    $('profile-email').innerText = s ? s.email : 'Not signed in';
+    const av = $('user-avatar-initials');
+    if (name) { av.textContent = name.charAt(0).toUpperCase(); } else { av.innerHTML = DEFAULT_AVATAR; }
+
+    const tag = $('auth-status-tag');
+    tag.innerText = s ? (s.verified ? 'Signed In' : 'Signed In (Demo)') : 'Signed Out';
+    tag.className = 'badge ' + (s ? 'badge-green' : 'badge-amber');
+    const lb = $('logout-btn');
+    if (lb) { lb.innerText = s ? 'Log Out' : 'Sign In'; lb.className = 'btn btn-block mt-4 ' + (s ? 'btn-danger' : 'btn-primary'); }
+
+    const info = s ? checkInStreakInfo() : { streak: 0, doneToday: false };
+    $('checkin-streak-badge').innerText = `${info.streak} Days Streak ⚡`;
+
+    const btn = $('checkin-today-btn');
+    const note = $('checkin-note');
+    if (!s) {
+      btn.innerText = 'Sign In to Check In';
+      btn.disabled = false; btn.style.opacity = '1';
+      note.innerText = 'Daily Check-in is only available after signing in with your email.';
+    } else if (info.doneToday) {
+      btn.innerText = 'Checked In Today ✓';
+      btn.disabled = true; btn.style.opacity = '0.6';
+      note.innerText = '';
+    } else {
+      btn.innerText = 'Check In Today';
+      btn.disabled = false; btn.style.opacity = '1';
+      note.innerText = '';
+    }
+
+    const ratio = Math.min(60, info.streak);
+    $('checkin-progress-ratio').innerText = `${ratio}/60 Days`;
+    $('reward-progress-fill').style.width = `${(ratio / 60) * 100}%`;
+
+    // Reward status (latest request for the signed-in user)
+    const box = $('reward-status-box');
+    const reqs = s ? appData.rewardRequests.filter(r => r.email === s.email) : [];
+    if (reqs.length === 0) { box.style.display = 'none'; return; }
+    const r = reqs[reqs.length - 1];
+    box.style.display = 'block';
+    const badge = $('reward-status-badge');
+    badge.innerText = r.status;
+    badge.className = 'badge ' + (r.status === 'Approved' ? 'badge-green' : r.status === 'Rejected' ? 'badge-red' : 'badge-amber');
+    $('reward-status-note').innerText = r.submittedToBackend
+      ? 'Request submitted. Please allow up to 24 hours for admin verification.'
+      : (Backend.connected ? 'Waiting for server verification. Only check-ins made while signed in and online count toward the reward.' : 'Saved on this device only. Reconnect and sign in so the admin can verify and approve this reward.');
+  }
+
+  function openEditProfileModal() {
+    $('edit-name-input').value = getDisplayName();
+    if (window.PlanoraFB && window.PlanoraFB.prepareEditProfile) window.PlanoraFB.prepareEditProfile();
+    openModal('edit-name-modal');
+    setTimeout(() => $('edit-name-input').focus(), 50);
+  }
+
+  function handleEditNameSubmit(e) {
+    e.preventDefault();
+    const n = $('edit-name-input').value.trim().slice(0, 40);
+    if (appData.session) {
+      (appData.profiles[appData.session.email] = appData.profiles[appData.session.email] || {}).name = n;
+    } else {
+      appData.guestName = n;
+    }
+    saveData();
+    closeModal('edit-name-modal');
+    updateHeaderGreeting();
+    renderProfileView();
+    if (appData.session && !appData.session.demo && Backend.connected && window.PlanoraFB) window.PlanoraFB.saveProfile(n);
+  }
+
+  function openDemoPaymentModal() {
+    if (Backend.connected && window.PlanoraFB) { window.PlanoraFB.openUpgrade(); return; }
+    openPlaceholderModal('Planora Premium',
+      'Upgrading needs an internet connection and a Planora account. Reconnect, sign in, and the available plans and payment options will appear here.');
+  }
+
+  function openPrivacyPolicy() {
+    openPlaceholderModal('Privacy Policy',
+`PRIVACY POLICY
+
+Planora respects your privacy. We may collect basic information such as your name, email, tasks, mock scores, and app activity to provide and improve our services.
+
+Your data will be handled securely and will not be sold to third parties. Payment information will be processed through secure payment providers.
+
+You may request account deletion and removal of eligible personal data, subject to applicable legal requirements.
+
+By using Planora, you agree to this Privacy Policy.
+
+App data is stored locally in your browser. If you sign in, your account details, payment records and support messages are also stored securely in the cloud, and you can optionally back up your tasks and scores.`);
+  }
+
+  function openTermsAndConditions() {
+    openPlaceholderModal('Terms of Service',
+`TERMS & CONDITIONS
+
+By using Planora, you agree to use the application responsibly and provide accurate information.
+
+Users can manage daily tasks, focus timers, mock scores, and streaks. Premium membership is available at the plans and prices shown in the app at the time of purchase. Premium is activated only after an administrator verifies your payment.
+
+Rewards require eligibility verification. We reserve the right to restrict fraudulent activity and update app features or these terms as permitted by law.
+
+Your use of Planora is also subject to our Privacy Policy and applicable laws.
+
+Planora is designed as a student productivity aid. Free tier provides full essential tracking.`);
+  }
+</script>
+
+<!-- =====================================================================
+     FIREBASE MODULE (user app) — single initialisation, official CDN, SDK 13.0.0
+     Adds: real sign-in, profile, subscription, payment proof, history,
+     support chat, notifications, optional cloud backup.
+     If this module fails to load, the app above keeps working in local mode.
+     ===================================================================== -->
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import {
+  getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  updateProfile, verifyBeforeUpdateEmail, sendPasswordResetEmail, sendEmailVerification,
+  reauthenticateWithCredential, EmailAuthProvider, deleteUser, signOut as fbSignOut
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+import {
+  getDatabase, ref, get, set, update, push, onValue, query, orderByChild, equalTo, limitToLast, serverTimestamp, increment
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
+
+/* ---- Firebase project config (public identifiers; security comes from the Realtime Database Rules) ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCBxc_qHBbFz7NPBr1eqihc6xPFDNIUVVI",
+  authDomain: "planora007.firebaseapp.com",
+  databaseURL: "https://planora007-default-rtdb.firebaseio.com",
+  projectId: "planora007",
+  storageBucket: "planora007.firebasestorage.app",
+  messagingSenderId: "725424373722",
+  appId: "1:725424373722:web:e75c8a16eb400de8c30ae3",
+  measurementId: "G-QQEQE4W3SS"
+};
+
+// ONE initialisation per page.
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Analytics is optional: loaded dynamically so an ad-blocker can never break the app.
+import("https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js")
+  .then((m) => m.isSupported().then((ok) => ok && m.getAnalytics(app)))
+  .catch(() => {});
+
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+/* ---------------------------------------------------------------- state */
+const S = {
+  user: null, profile: null, avatar: null, sub: null, history: [], notifs: [], limit: null, config: null,
+  conv: null, deletion: null, backupMeta: null, rewards: {}, online: false, offset: 0,
+  errors: {}, pendingName: null, chat: [], chatOpen: false
+};
+let unsubs = [];
+let ready_resolve; const ready = new Promise((r) => (ready_resolve = r));
+const appReady = new Promise((res) => {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(res, 0));
+  else res();
+});
+
+/* ------------------------------------------------------------- helpers */
+const el = (id) => document.getElementById(id);
+const serverNow = () => Date.now() + (S.offset || 0);
+const fmtD = (ms) => (ms ? new Date(ms).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
+const fmtDT = (ms) => (ms ? new Date(ms).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) : "—");
+const fmtTime = (ms) => (ms ? new Date(ms).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) : "");
+function fmtMoney(n, cur) {
+  try { return new Intl.NumberFormat(undefined, { style: "currency", currency: cur || "INR", maximumFractionDigits: 2 }).format(n); }
+  catch (e) { return (cur || "") + " " + n; }
+}
+function fmtDuration(d) {
+  if (d % 365 === 0) return d / 365 + (d / 365 === 1 ? " year" : " years");
+  if (d % 30 === 0) return d / 30 + (d / 30 === 1 ? " month" : " months");
+  return d + (d === 1 ? " day" : " days");
+}
+function fmtRemaining(ms) {
+  const m = Math.max(1, Math.ceil(ms / 60000));
+  const h = Math.floor(m / 60);
+  return h ? `${h}h ${m % 60}m` : `${m}m`;
+}
+let toastTimer;
+function toast(msg) {
+  const t = el("pl-toast"); if (!t) return;
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3200);
+}
+function friendlyError(err) {
+  const c = (err && err.code) || "";
+  const map = {
+    "auth/invalid-credential": "Incorrect email or password.",
+    "auth/wrong-password": "Incorrect email or password.",
+    "auth/user-not-found": "Incorrect email or password.",
+    "auth/invalid-email": "Please enter a valid email address.",
+    "auth/email-already-in-use": "An account with this email already exists. Try signing in.",
+    "auth/weak-password": "Choose a stronger password (at least 8 characters).",
+    "auth/too-many-requests": "Too many attempts. Please wait a few minutes and try again.",
+    "auth/network-request-failed": "Network problem. Check your connection and try again.",
+    "auth/requires-recent-login": "Please sign in again to do this.",
+    "auth/operation-not-allowed": "Email/password sign-in is not enabled for this project yet.",
+    "auth/user-disabled": "This account has been disabled.",
+    "PERMISSION_DENIED": "The server refused this action. Check your connection, sign in again, or contact support."
+  };
+  if (map[c]) return map[c];
+  if (/permission_denied/i.test((err && err.message) || "")) return map.PERMISSION_DENIED;
+  return (err && err.message) || "Something went wrong. Please try again.";
+}
+const planList = () => {
+  const p = (S.config && S.config.plans) || {};
+  return Object.keys(p).map((id) => Object.assign({ id }, p[id])).filter((x) => x.enabled !== false).sort((a, b) => a.price - b.price);
+};
+const qrPublished = () => !!(S.config && S.config.qr && S.config.qr.url);
+const latestRequest = () => S.history[0] || null;
+const STATUS_LABEL = { pending: "Pending Verification", approving: "Pending Verification", approved: "Approved", rejected: "Rejected", needs_info: "Requires Additional Information", cancelled: "Cancelled" };
+const STATUS_CLASS = { pending: "badge-amber", approving: "badge-amber", approved: "badge-green", rejected: "badge-red", needs_info: "badge-purple", cancelled: "badge-muted" };
+const statusBadge = (st) => `<span class="badge ${STATUS_CLASS[st] || "badge-muted"}">${esc(STATUS_LABEL[st] || st)}</span>`;
+
+function subscriptionStatus() {
+  const s = S.sub, now = serverNow();
+  if (s) {
+    if (s.status === "active") return now > s.expiresAt ? "Expired" : "Active";
+    if (s.status === "expired") return "Expired";
+    if (s.status === "cancelled") return "Cancelled";
+  }
+  const l = latestRequest();
+  if (l && ["pending", "approving", "needs_info"].includes(l.status)) return "Pending Payment";
+  if (l && l.status === "rejected" && !s) return "Rejected";
+  return "Free";
+}
+const SUB_CLASS = { Active: "badge-green", Free: "badge-muted", "Pending Payment": "badge-amber", Expired: "badge-red", Rejected: "badge-red", Cancelled: "badge-muted" };
+
+/* ------------------------------------------------- image preparation */
+async function sniffType(file) {
+  const b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return "image/png";
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return "image/webp";
+  return null;
+}
+async function decodeBitmap(file) {
+  if (window.createImageBitmap) { try { return await createImageBitmap(file); } catch (e) { /* fall through */ } }
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); res(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("This file is not a readable image.")); };
+    img.src = url;
+  });
+}
+function canvasJpeg(bmp, maxDim, q) {
+  const w0 = bmp.width, h0 = bmp.height, k = Math.min(1, maxDim / Math.max(w0, h0));
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w0 * k)); c.height = Math.max(1, Math.round(h0 * k));
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise((res) => c.toBlob(res, "image/jpeg", q));
+}
+/** Validates real content, then returns a blob <= maxBytes (compressing/resizing if needed) or throws. */
+async function prepareImage(file, maxBytes, dims) {
+  const type = await sniffType(file);
+  if (!type) throw new Error("Only JPEG, PNG or WebP images are accepted.");
+  const bmp = await decodeBitmap(file); // also proves the content is a decodable image
+  if (file.size <= maxBytes && !dims) return { blob: file, type, compressed: false };
+  for (const d of dims || [1280, 1024, 800, 640]) {
+    for (const q of [0.82, 0.68, 0.55, 0.42]) {
+      const b = await canvasJpeg(bmp, d, q);
+      if (b && b.size <= maxBytes) return { blob: b, type: "image/jpeg", compressed: true, original: file.size };
+    }
+  }
+  throw new Error("This image is still over " + Math.round(maxBytes / 1024) + " KB after compression. Crop it or take a smaller screenshot.");
+}
+const blobToBase64 = (blob) => new Promise((res, rej) => {
+  const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.onerror = () => rej(new Error("Could not read the image.")); r.readAsDataURL(blob);
+});
+
+const imgToDataURL = async (r) => "data:" + r.type + ";base64," + (await blobToBase64(r.blob));
+
+/* ----------------------------------------------------- listeners */
+function stopListeners() {
+  unsubs.forEach((u) => { try { u(); } catch (e) {} }); unsubs = [];
+  if (chatUnsub) { try { chatUnsub(); } catch (e) {} chatUnsub = null; }
+}
+function listen(label, q, cb) {
+  const un = onValue(q, (snap) => { delete S.errors[label]; cb(snap); scheduleRender(); },
+    (err) => { S.errors[label] = err && err.code ? err.code : "error"; console.warn("Listener", label, err); scheduleRender(); });
+  unsubs.push(un);
+}
+function startListeners(uid) {
+  stopListeners();
+  const u = (p) => ref(db, `users/${uid}/${p}`);
+  listen("profile", u("profile"), (s) => {
+    S.profile = s.val();
+    if (S.profile && appData.session) {
+      const em = appData.session.email;
+      const cloudName = (S.profile.displayName || "").trim();
+      if (cloudName) (appData.profiles[em] = appData.profiles[em] || {}).name = cloudName;
+      saveData(); updateHeaderGreeting(); renderProfileView();
+    }
+  });
+  listen("subscription", u("subscription"), (s) => { S.sub = s.val(); });
+  listen("history", query(ref(db, "paymentRequests"), orderByChild("uid"), equalTo(uid)), (s) => {
+    const a = []; s.forEach((c) => { a.push(c.val()); });
+    a.sort((x, y) => (y.createdAt || 0) - (x.createdAt || 0)); S.history = a.slice(0, 50);
+  });
+  listen("avatar", u("avatar"), (s) => { S.avatar = s.val(); });
+  listen("notifications", query(u("notifications"), orderByChild("createdAt"), limitToLast(20)), (s) => {
+    const a = []; s.forEach((c) => { a.push(Object.assign({ id: c.key }, c.val())); }); S.notifs = a.reverse();
+  });
+  listen("limits", u("limits/payment"), (s) => { S.limit = s.val(); });
+  listen("config", ref(db, "paymentConfig/public"), (s) => { S.config = s.val(); if (el("pay-modal").classList.contains("active")) refreshPayModal(); });
+  listen("conversation", ref(db, `supportConversations/${uid}`), (s) => { S.conv = s.val(); });
+  listen("backup", u("appBackup"), (s) => { S.backupMeta = s.val(); });
+  listen("rewards", u("rewardRequests"), (s) => { S.rewards = s.val() || {}; syncRewardStatus(); });
+}
+// connection + clock offset: global, registered once (not per user)
+onValue(ref(db, ".info/connected"), (s) => { S.online = !!s.val(); scheduleRender(); });
+onValue(ref(db, ".info/serverTimeOffset"), (s) => { S.offset = s.val() || 0; });
+
+function syncRewardStatus() {
+  try {
+    const list = Object.values(S.rewards || {});
+    (appData.rewardRequests || []).forEach((r) => {
+      const m = list.find((x) => x.streakStart === r.streakStart);
+      if (m) {
+        r.submittedToBackend = true;
+        r.status = m.status === "approved" ? "Approved" : m.status === "rejected" ? "Rejected" : "Pending";
+      }
+    });
+    saveData(); renderProfileView();
+  } catch (e) { console.warn(e); }
+}
+
+/* ------------------------------------------------------- auth flow */
+const profileLocks = {};
+async function ensureProfile(user) {
+  if (profileLocks[user.uid]) return profileLocks[user.uid];
+  profileLocks[user.uid] = (async () => {
+    const pref = ref(db, `users/${user.uid}/profile`);
+    const email = (user.email || "").toLowerCase();
+    const localName = ((appData.profiles[email] || {}).name || "").trim();
+    let snap;
+    try { snap = await get(pref); } catch (e) { console.warn("profile read failed", e); return; }
+    const p = snap.val();
+    const uid = user.uid;
+    let d = null;
+    try { d = (await get(ref(db, `userDirectory/${uid}`))).val(); } catch (e) { /* first run */ }
+    const upd = {};
+    let name;
+    if (!p) {
+      name = (S.pendingName || user.displayName || localName || "").slice(0, 40);
+      upd[`users/${uid}/profile`] = { displayName: name, email, createdAt: serverTimestamp() };
+    } else {
+      name = p.displayName || localName.slice(0, 40);
+      if (p.email !== email) { try { await user.getIdToken(true); upd[`users/${uid}/profile/email`] = email; } catch (e) {} }
+      if (!p.displayName && localName) upd[`users/${uid}/profile/displayName`] = name; // migrate local name, never overwrite
+    }
+    if (!d) {
+      upd[`userDirectory/${uid}/uid`] = uid;
+      upd[`userDirectory/${uid}/displayName`] = name;
+      upd[`userDirectory/${uid}/nameLower`] = name.toLowerCase();
+      upd[`userDirectory/${uid}/email`] = email;
+      upd[`userDirectory/${uid}/emailLower`] = email;
+      upd[`userDirectory/${uid}/createdAt`] = p && p.createdAt ? p.createdAt : serverTimestamp();
+    } else {
+      if (d.displayName !== name) { upd[`userDirectory/${uid}/displayName`] = name; upd[`userDirectory/${uid}/nameLower`] = name.toLowerCase(); }
+      if (d.email !== email) { upd[`userDirectory/${uid}/email`] = email; upd[`userDirectory/${uid}/emailLower`] = email; }
+    }
+    if (Object.keys(upd).length) { try { await update(ref(db), upd); } catch (e) { console.warn("profile sync", e && e.code, e); } }
+    S.pendingName = null;
+  })();
+  try { await profileLocks[user.uid]; } finally { delete profileLocks[user.uid]; }
+}
+
+async function onSignedIn(user) {
+  const email = (user.email || "").toLowerCase();
+  appData.session = { uid: user.uid, email, demo: false, verified: !!user.emailVerified };
+  if (!appData.profiles[email]) appData.profiles[email] = { name: "" };
+  saveData();
+  await ensureProfile(user);
+  startListeners(user.uid);
+  // push local theme preference + retry anything that was waiting for a connection
+  pushTheme();
+  const today = getTodayDateStr();
+  if ((appData.checkInsByUser[email] || []).includes(today)) fb.recordCheckIn(today);
+  (appData.rewardRequests || []).filter((r) => r.email === email && !r.submittedToBackend).forEach((r) => fb.submitRewardRequest(r).then((res) => {
+    if (res && res.submitted) { r.submittedToBackend = true; saveData(); renderProfileView(); }
+  }).catch(() => {}));
+  updateHeaderGreeting(); renderProfileView();
+}
+function onSignedOut() {
+  stopListeners();
+  Object.assign(S, { profile: null, sub: null, history: [], notifs: [], limit: null, conv: null, deletion: null, backupMeta: null, rewards: {}, chat: [], chatOpen: false, errors: {}, avatar: null });
+  if (appData.session) { appData.session = null; saveData(); }
+  updateHeaderGreeting(); renderProfileView(); scheduleRender();
+}
+onAuthStateChanged(auth, async (user) => {
+  await appReady;
+  S.user = user;
+  try { if (user) await onSignedIn(user); else onSignedOut(); } catch (e) { console.error(e); }
+  ready_resolve(true);
+}, (err) => { console.error("Auth state error", err); ready_resolve(false); });
+setTimeout(() => ready_resolve(true), 4500); // never block the splash screen
+
+function pushTheme() {
+  if (!S.user) return;
+  const t = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  set(ref(db, `users/${S.user.uid}/preferences/theme`), t).catch(() => {});
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const b = el("theme-toggle"); if (b) b.addEventListener("click", () => setTimeout(pushTheme, 0));
+});
+
+/* ----------------------------------------------------- rendering */
+let renderQueued = false;
+function scheduleRender() { if (renderQueued) return; renderQueued = true; requestAnimationFrame(() => { renderQueued = false; renderAll(); }); }
+const row = (k, v) => `<div class="pl-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+function qrBlockHTML() {
+  if (!qrPublished()) return `<div class="pl-qr"><p style="font-size:0.95rem; font-weight:600; color:var(--text-main);">Payment QR will be available here soon.</p></div>`;
+  const ins = S.config.instructions ? `<p>${esc(S.config.instructions)}</p>` : "";
+  return `<div class="pl-qr"><img src="${esc(S.config.qr.url)}" alt="Payment QR code" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"><p style="display:none; color:var(--accent-red);">The QR image could not be loaded. Check your connection or contact support.</p>${ins}</div>`;
+}
+function renderPremiumCard() {
+  const price = el("premium-price"), plans = el("premium-plans"), btn = el("premium-upgrade-btn");
+  if (!price) return;
+  if (!S.user) { price.textContent = "Sign in to see plans"; plans.innerHTML = ""; btn.textContent = "Sign in to upgrade"; return; }
+  const list = planList();
+  if (!list.length) {
+    price.textContent = S.errors.config ? "Plans unavailable" : "Plans coming soon";
+    plans.innerHTML = ""; btn.textContent = "Upgrade to Premium"; return;
+  }
+  const f = list[0];
+  price.textContent = `${fmtMoney(f.price, f.currency)} / ${fmtDuration(f.durationDays)}`;
+  plans.innerHTML = list.length > 1 ? list.map((p) => `<div class="pl-row"><span class="k">${esc(p.name)}</span><span class="v">${esc(fmtMoney(p.price, p.currency))} / ${esc(fmtDuration(p.durationDays))}</span></div>`).join("") + '<div style="height:12px"></div>' : "";
+  btn.textContent = "Upgrade to Premium";
+}
+function renderSubCard() {
+  const c = el("fb-sub-card"); const st = subscriptionStatus(); const s = S.sub; const l = latestRequest();
+  const pending = S.history.filter((h) => ["pending", "approving", "needs_info"].includes(h.status)).length;
+  let exp = "—";
+  if (s && s.expiresAt) { const left = Math.ceil((s.expiresAt - serverNow()) / 86400000); exp = fmtD(s.expiresAt) + (st === "Active" ? ` <span class="text-muted">(${left} day${left === 1 ? "" : "s"} left)</span>` : ""); }
+  c.innerHTML = `<div class="flex-between mb-2"><h3 class="pl-title">Subscription</h3><span class="badge ${SUB_CLASS[st] || "badge-muted"}">${esc(st)}</span></div>` +
+    row("Current plan", esc(s && s.planName ? s.planName : "Free")) +
+    row("Start date", s && s.startAt ? fmtD(s.startAt) : "—") +
+    row("Expiry date", exp) +
+    row("Payment status", l ? statusBadge(l.status) : "—") +
+    row("Pending verification", String(pending)) +
+    (S.errors.subscription ? `<p class="text-muted" style="margin-top:8px;">Could not load subscription (${esc(S.errors.subscription)}).</p>` : "");
+}
+function limitInfo() {
+  const n = S.limit && S.limit.lastSubmittedAt ? S.limit.lastSubmittedAt + 86400000 : 0; const left = n ? n - serverNow() : 0;
+  return left > 0 ? { blocked: true, left } : { blocked: false, left: 0 };
+}
+function renderPayCard() {
+  const c = el("fb-pay-card"); const lim = limitInfo(); const plans = planList();
+  const ready = qrPublished() && plans.length;
+  c.innerHTML = `<div class="flex-between mb-2"><h3 class="pl-title">Payment</h3>${S.online ? "" : '<span class="badge badge-amber">Offline</span>'}</div>` +
+    qrBlockHTML() +
+    (S.errors.config ? `<p class="text-muted mb-2">Could not load payment settings (${esc(S.errors.config)}).</p>` : "") +
+    (lim.blocked ? `<div class="pl-notice">You can submit another payment proof in ${fmtRemaining(lim.left)}.</div>` : "") +
+    `<button class="btn btn-primary btn-block" ${ready ? "" : "disabled style='opacity:.6'"} onclick="PlanoraFB.openUpgrade()">I've paid — submit proof</button>` +
+    (!plans.length ? `<p class="text-muted" style="margin-top:8px;">Subscription plans have not been published yet.</p>` : "");
+}
+function renderHistCard() {
+  const c = el("fb-hist-card");
+  c.innerHTML = `<h3 class="pl-title mb-2">Payment History</h3>` + (S.history.length ? S.history.map((h) =>
+    `<div class="pl-item" onclick="PlanoraFB.openPayment('${esc(h.id)}')"><div><div class="t">${esc(h.planName)} · ${esc(fmtMoney(h.amount, h.currency))}</div><div class="s">${esc(fmtDT(h.createdAt))} · ${esc(h.utr)}</div></div>${statusBadge(h.status)}</div>`).join("")
+    : `<p class="text-muted">No payments yet.</p>`);
+}
+function renderSupportCard() {
+  const c = el("fb-support-card"); const u = (S.conv && S.conv.unreadForUser) || 0;
+  c.innerHTML = `<div class="flex-between mb-2"><h3 class="pl-title">Support</h3>${u ? `<span class="pl-unread">${u} new</span>` : S.conv && S.conv.status === "resolved" ? '<span class="badge badge-green">Resolved</span>' : ""}</div>` +
+    `<p class="text-muted mb-4">Payment problems, login help, bugs or suggestions — message the Planora admin. Replies appear here.</p>` +
+    `<button class="btn btn-secondary btn-block" onclick="PlanoraFB.openChat()">Open support chat</button>`;
+}
+function renderNotifCard() {
+  const c = el("fb-notif-card");
+  if (!S.notifs.length) { c.style.display = "none"; return; }
+  c.style.display = "";
+  c.innerHTML = `<h3 class="pl-title mb-2">Notifications</h3>` + S.notifs.slice(0, 5).map((n) =>
+    `<div class="pl-item" onclick="PlanoraFB.readNotif('${esc(n.id)}')" style="${n.read ? "opacity:.65" : ""}"><div><div class="t">${n.read ? "" : '<span class="pl-dot on"></span>'}${esc(n.title)}</div><div class="s">${esc(n.body)} · ${esc(fmtDT(n.createdAt))}</div></div></div>`).join("");
+}
+function renderAccountCard() {
+  const c = el("fb-account-card"); const u = S.user; const p = S.profile || {};
+  c.innerHTML = `<h3 class="pl-title mb-2">Account &amp; Security</h3>` +
+    row("Email", esc(u.email || "")) +
+    row("Email status", u.emailVerified ? '<span class="badge badge-green">Verified</span>' : '<span class="badge badge-amber">Not verified</span>') +
+    row("User ID", `<span style="font-size:.72rem">${esc(u.uid)}</span>`) +
+    row("Member since", esc(fmtD(p.createdAt || (u.metadata && Date.parse(u.metadata.creationTime))))) +
+    row("Cloud sync", `<span class="pl-dot ${S.online ? "on" : ""}"></span>${S.online ? "Connected" : "Offline — changes sync when you reconnect"}`) +
+    (Object.keys(S.errors).length ? `<p class="text-muted" style="margin-top:8px;">Some data could not load. <button class="pl-link" onclick="PlanoraFB.retryLoad()">Retry</button></p>` : "") +
+    `<div class="pl-actions">` +
+    (u.emailVerified ? "" : `<button class="btn btn-secondary btn-sm" onclick="PlanoraFB.sendVerification()">Verify email</button>`) +
+    `<button class="btn btn-secondary btn-sm" onclick="PlanoraFB.openEmailModal()">Change email</button>` +
+    `<button class="btn btn-secondary btn-sm" onclick="PlanoraFB.resetPassword()">Reset password</button>` +
+    `<button class="btn btn-secondary btn-sm" onclick="openDemoAuthModal()">Sign out</button></div>` +
+    `<button class="btn btn-danger btn-sm" style="margin-top:10px;" onclick="PlanoraFB.openDeleteModal()">Delete my account</button>`;
+}
+function renderCloudCard() {
+  const c = el("fb-cloud-card"); const m = S.backupMeta;
+  c.innerHTML = `<h3 class="pl-title mb-2">Cloud Backup</h3><p class="text-muted mb-2" style="line-height:1.45;">Back up your tasks, timer history, mock scores and check-ins to your account. Restoring <b>merges</b> cloud items into this device and never deletes local data.</p>` +
+    row("Last backup", m && m.updatedAt ? esc(fmtDT(m.updatedAt)) : "Never") +
+    `<div class="pl-actions"><button class="btn btn-secondary btn-sm" id="bk-now" onclick="PlanoraFB.backupNow()">Back up now</button><button class="btn btn-secondary btn-sm" id="bk-restore" onclick="PlanoraFB.restoreMerge()" ${m ? "" : "disabled style='opacity:.6'"}>Restore (merge)</button></div>`;
+}
+function renderAvatar() {
+  const av = el("user-avatar-initials"); if (!av) return;
+  const ph = S.user && S.avatar;
+  if (ph) av.innerHTML = `<img src="${esc(ph)}" alt="Profile photo">`;
+}
+function renderAll() {
+  renderPremiumCard();
+  const on = !!S.user;
+  ["fb-sub-card", "fb-pay-card", "fb-hist-card", "fb-support-card", "fb-account-card", "fb-cloud-card"].forEach((id) => { el(id).style.display = on ? "" : "none"; });
+  if (!on) { el("fb-notif-card").style.display = "none"; return; }
+  renderSubCard(); renderPayCard(); renderHistCard(); renderSupportCard(); renderNotifCard(); renderAccountCard(); renderCloudCard(); renderAvatar();
+  if (el("pay-modal").classList.contains("active")) refreshPayBanner();
+  if (el("pay-detail-modal").classList.contains("active") && detailId) renderPayDetail();
+  if (S.chatOpen) renderChatStatus();
+}
+// keep existing render function, then layer cloud UI on top
+const _origRenderProfile = window.renderProfileView;
+window.renderProfileView = function () { _origRenderProfile(); renderAvatar(); };
+setInterval(() => { if (S.user && document.getElementById("screen-profile").classList.contains("active")) scheduleRender(); }, 60000);
+
+/* ---------------------------------------------------- public API */
+const fb = (window.PlanoraFB = { ready, connected: true });
+
+fb.signOut = async () => { stopListeners(); await fbSignOut(auth); };
+
+/* ---- auth modal ---- */
+let authMode = "signin";
+function setAuthMode(m) {
+  authMode = m;
+  el("auth-title").textContent = m === "register" ? "Create Account" : "Sign In";
+  el("auth-submit").textContent = m === "register" ? "Create account" : "Sign In";
+  el("auth-name-group").style.display = m === "register" ? "" : "none";
+  el("auth-pass-group").style.display = "";
+  el("auth-password").autocomplete = m === "register" ? "new-password" : "current-password";
+  el("auth-toggle").textContent = m === "register" ? "Have an account? Sign in" : "New here? Create an account";
+  el("auth-forgot").style.display = m === "register" ? "none" : "";
+  el("auth-extra").style.display = "";
+  el("auth-error").textContent = "";
+}
+fb.prepareAuthModal = () => { el("auth-password").value = ""; el("auth-name").value = ""; el("auth-lastname").value = ""; setAuthMode("signin"); };
+fb.toggleAuthMode = () => setAuthMode(authMode === "signin" ? "register" : "signin");
+fb.submitAuthForm = async (e) => {
+  e.preventDefault();
+  const email = el("auth-email").value.trim().toLowerCase(), pw = el("auth-password").value, first = el("auth-name").value.trim().slice(0, 30), last = el("auth-lastname").value.trim().slice(0, 30), name = (first + " " + last).trim();
+  const err = el("auth-error"), btn = el("auth-submit");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = "Please enter a valid email address."; return; }
+  if (pw.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
+  if (authMode === "register" && (!first || !last)) { err.textContent = "Please enter your first and last name."; return; }
+  btn.disabled = true; err.textContent = "";
+  try {
+    if (authMode === "register") {
+      S.pendingName = name;
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      try { await updateProfile(cred.user, { displayName: name }); } catch (x) {}
+      try { await sendEmailVerification(cred.user); } catch (x) {}
+      toast("Account created. Check your inbox to verify your email.");
+    } else {
+      await signInWithEmailAndPassword(auth, email, pw);
+    }
+    closeModal("auth-modal");
+  } catch (x) { S.pendingName = null; err.textContent = friendlyError(x); }
+  finally { btn.disabled = false; }
+};
+fb.forgotPassword = async () => {
+  const email = el("auth-email").value.trim().toLowerCase(), err = el("auth-error");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = "Enter your email above first."; return; }
+  try { await sendPasswordResetEmail(auth, email); err.style.color = "var(--accent-green)"; err.textContent = "If that account exists, a reset link has been sent."; setTimeout(() => (err.style.color = "var(--accent-red)"), 4000); }
+  catch (x) { err.textContent = friendlyError(x); }
+};
+
+/* ---- profile editing ---- */
+let pendingPhoto = null;
+fb.prepareEditProfile = () => {
+  pendingPhoto = null;
+  const on = !!(S.user && Backend.connected);
+  el("edit-photo-group").style.display = on ? "" : "none";
+  if (!on) return;
+  const ph = S.avatar;
+  const nm = (typeof getDisplayName === "function" ? getDisplayName() : "") || "";
+  el("edit-photo-preview").innerHTML = ph ? `<img src="${esc(ph)}" alt="">` : esc((nm.charAt(0) || "?").toUpperCase());
+  el("edit-photo-note").textContent = "Photos are resized automatically (max 40 KB).";
+};
+fb.onPhotoPicked = async (inp) => {
+  const f = inp.files && inp.files[0]; inp.value = ""; if (!f) return;
+  const note = el("edit-photo-note");
+  try {
+    const bmp0 = await prepareImage(f, 40 * 1024, [256, 200, 160, 128, 96]);
+    pendingPhoto = bmp0;
+    el("edit-photo-preview").innerHTML = `<img src="${URL.createObjectURL(bmp0.blob)}" alt="">`;
+    note.textContent = "New photo ready — tap Save.";
+  } catch (x) { pendingPhoto = null; note.textContent = x.message; }
+};
+fb.saveProfile = async (name) => {
+  const user = auth.currentUser; if (!user) return;
+  try {
+    name = String(name || "").slice(0, 40); const uid = user.uid;
+    const upd = {
+      [`users/${uid}/profile/displayName`]: name,
+      [`userDirectory/${uid}/displayName`]: name,
+      [`userDirectory/${uid}/nameLower`]: name.toLowerCase()
+    };
+    if (pendingPhoto) upd[`users/${uid}/avatar`] = await imgToDataURL(pendingPhoto);
+    try { await updateProfile(user, { displayName: name }); } catch (e) {}
+    await update(ref(db), upd);
+    pendingPhoto = null; toast("Profile saved.");
+  } catch (x) { toast("Saved on this device only: " + friendlyError(x)); }
+};
+
+/* ---- email / password / verification / deletion ---- */
+fb.openEmailModal = () => { el("email-new").value = ""; el("email-pass").value = ""; el("email-error").textContent = ""; openModal("email-modal"); };
+fb.submitEmailChange = async (e) => {
+  e.preventDefault();
+  const ne = el("email-new").value.trim().toLowerCase(), pw = el("email-pass").value, err = el("email-error"), btn = el("email-submit");
+  const u = auth.currentUser;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ne)) { err.textContent = "Enter a valid new email."; return; }
+  if (ne === (u.email || "").toLowerCase()) { err.textContent = "That is already your email."; return; }
+  if (!pw) { err.textContent = "Enter your current password."; return; }
+  btn.disabled = true; err.textContent = "";
+  try {
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
+    await verifyBeforeUpdateEmail(u, ne);
+    closeModal("email-modal");
+    openPlaceholderModal("Check your new inbox", "We sent a confirmation link to " + ne + ". Your email changes after you open it. Then sign in again with the new address.");
+  } catch (x) { err.textContent = friendlyError(x); } finally { btn.disabled = false; }
+};
+fb.resetPassword = () => {
+  const u = auth.currentUser; if (!u) return;
+  openConfirm({ title: "Reset password?", body: "We will email a password-reset link to " + u.email + ".", confirmText: "Send link" },
+    async () => { try { await sendPasswordResetEmail(auth, u.email); toast("Reset link sent."); } catch (x) { toast(friendlyError(x)); } });
+};
+fb.sendVerification = async () => { try { await sendEmailVerification(auth.currentUser); toast("Verification email sent."); } catch (x) { toast(friendlyError(x)); } };
+fb.openDeleteModal = () => { el("del-pass").value = ""; el("del-error").textContent = ""; openModal("delete-modal"); };
+fb.submitDelete = async (e) => {
+  e.preventDefault();
+  const u = auth.currentUser, pw = el("del-pass").value, err = el("del-error"), btn = el("del-submit");
+  if (!u) return;
+  if (!pw) { err.textContent = "Enter your current password."; return; }
+  btn.disabled = true; err.textContent = "";
+  try {
+    await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, pw));
+    const uid = u.uid, upd = {};
+    ["profile", "preferences", "avatar", "appBackup", "appBackupData"].forEach((k) => { upd[`users/${uid}/${k}`] = null; });
+    upd[`userDirectory/${uid}`] = null; upd[`supportConversations/${uid}`] = null;
+    const [m, n, c] = await Promise.all([get(ref(db, `supportMessages/${uid}`)), get(ref(db, `users/${uid}/notifications`)), get(ref(db, `users/${uid}/checkIns`))]);
+    m.forEach((x) => { upd[`supportMessages/${uid}/${x.key}`] = null; });
+    n.forEach((x) => { upd[`users/${uid}/notifications/${x.key}`] = null; });
+    c.forEach((x) => { upd[`users/${uid}/checkIns/${x.key}`] = null; });
+    stopListeners();
+    await update(ref(db), upd);
+    await deleteUser(u);
+    closeModal("delete-modal"); toast("Your account and personal data were deleted.");
+  } catch (x) { err.textContent = friendlyError(x); if (S.user) startListeners(S.user.uid); }
+  finally { btn.disabled = false; }
+};
+fb.retryLoad = () => { if (S.user) { S.errors = {}; startListeners(S.user.uid); toast("Reloading…"); } };
+fb.readNotif = (id) => { if (S.user) set(ref(db, `users/${S.user.uid}/notifications/${id}/read`), true).catch(() => {}); };
+
+/* ---- check-ins / reward (stamped with the server clock, re-checked by the admin) ---- */
+const DAY = 86400000;
+const dayIdx = (s) => Math.floor(Date.parse(s + "T00:00:00Z") / DAY);
+async function cloudStreak(uid) {
+  const v = (await get(ref(db, `users/${uid}/checkIns`))).val() || {};
+  const days = Object.keys(v).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).map(dayIdx).sort((a, b) => b - a);
+  if (!days.length) return { streak: 0, start: null };
+  const today = Math.floor(serverNow() / DAY);
+  if (days[0] < today - 1) return { streak: 0, start: null };
+  let n = 1;
+  for (let i = 1; i < days.length && days[i] === days[i - 1] - 1; i++) n++;
+  return { streak: n, start: new Date((days[0] - n + 1) * DAY).toISOString().slice(0, 10) };
+}
+fb.recordCheckIn = async (date) => {
+  if (!S.user || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+  if (Math.abs(dayIdx(date) - Math.floor(serverNow() / DAY)) > 1) return;
+  const r = ref(db, `users/${S.user.uid}/checkIns/${date}`);
+  try { if (!(await get(r)).exists()) await set(r, serverTimestamp()); } catch (e) { console.warn("check-in sync", e && e.code); }
+};
+fb.submitRewardRequest = async () => {
+  if (!S.user) return { submitted: false, reason: "not-signed-in" };
+  const uid = S.user.uid;
+  try {
+    const s = await cloudStreak(uid);
+    if (s.streak < 60) return { submitted: false, reason: "not-eligible" };
+    const key = `${uid}_${s.start}`;
+    const rec = { id: key, uid, email: (S.user.email || "").toLowerCase(), displayName: ((S.profile && S.profile.displayName) || "").slice(0, 40), milestone: 60, streak: s.streak, streakStart: s.start, status: "pending", createdAt: serverTimestamp() };
+    try { await update(ref(db), { [`rewardRequests/${key}`]: rec, [`users/${uid}/rewardRequests/${key}`]: rec }); }
+    catch (x) { if (!(await get(ref(db, `users/${uid}/rewardRequests/${key}`))).exists()) throw x; }
+    return { submitted: true };
+  } catch (x) { console.warn("reward", x && x.code); return { submitted: false, reason: "error" }; }
+};
+
+/* ---- payment modal ---- */
+const pay = { planId: null, proof: null, busy: false };
+function refreshPayModal() {
+  const plans = planList();
+  if (!plans.some((p) => p.id === pay.planId)) pay.planId = plans[0] ? plans[0].id : null;
+  el("pay-plan-list").innerHTML = plans.length ? plans.map((p) => `<button type="button" class="pl-plan ${p.id === pay.planId ? "active" : ""}" onclick="PlanoraFB.pickPlan('${esc(p.id)}')"><span><span class="n">${esc(p.name)}</span><br><span class="d">${esc(fmtDuration(p.durationDays))}${p.description ? " · " + esc(p.description) : ""}</span></span><span class="p">${esc(fmtMoney(p.price, p.currency))}</span></button>`).join("") : '<p class="text-muted">No plans are available yet.</p>';
+  const p = plans.find((x) => x.id === pay.planId);
+  el("pay-amount").textContent = p ? fmtMoney(p.price, p.currency) : "—";
+  el("pay-qr-block").innerHTML = qrBlockHTML();
+  const req = !S.config || S.config.screenshotRequired !== false;
+  el("pay-shot-req").textContent = req ? "(required)" : "(optional)";
+  refreshPayBanner();
+}
+function refreshPayBanner() {
+  const lim = limitInfo();
+  el("pay-limit-banner").innerHTML = lim.blocked ? `<div class="pl-notice">Only one payment proof can be submitted every 24 hours. You can submit again in ${fmtRemaining(lim.left)}.</div>` : "";
+  el("pay-submit").disabled = pay.busy || lim.blocked || !qrPublished() || !pay.planId;
+  el("pay-submit").style.opacity = el("pay-submit").disabled ? ".6" : "1";
+}
+fb.pickPlan = (id) => { pay.planId = id; refreshPayModal(); };
+fb.openUpgrade = () => {
+  if (!S.user) { openSignIn(); return; }
+  if (!planList().length || !qrPublished()) {
+    openPlaceholderModal("Payments not open yet", !planList().length ? "Subscription plans have not been published yet. Please check back soon." : "The payment QR will be available here soon.");
+    return;
+  }
+  pay.proof = null; pay.busy = false;
+  ["pay-utr", "pay-txn", "pay-note"].forEach((i) => (el(i).value = ""));
+  const d = el("pay-date"); const t = new Date(); d.value = localDateStr(t); d.max = localDateStr(t); d.min = localDateStr(addDays(t, -90));
+  el("pay-error").textContent = ""; el("pay-shot-preview").innerHTML = ""; el("pay-shot-msg").textContent = "";
+  el("pay-shot-area").textContent = "Tap to choose a screenshot (JPEG, PNG or WebP, max 100 KB)";
+  refreshPayModal(); openModal("pay-modal");
+};
+async function pickProof(inp, setMsg, setPreview) {
+  const f = inp.files && inp.files[0]; inp.value = ""; if (!f) return null;
+  try {
+    const r = await prepareImage(f, 100 * 1024);
+    setPreview(URL.createObjectURL(r.blob));
+    setMsg(r.compressed ? `Resized to ${Math.round(r.blob.size / 1024)} KB (original ${Math.round(r.original / 1024)} KB).` : `${Math.round(r.blob.size / 1024)} KB — ready.`, false);
+    return r;
+  } catch (x) { setPreview(null); setMsg(x.message, true); return null; }
+}
+fb.onProofPicked = async (inp) => {
+  const r = await pickProof(inp,
+    (m, bad) => { const n = el("pay-shot-msg"); n.textContent = m; n.style.color = bad ? "var(--accent-red)" : ""; },
+    (u) => { el("pay-shot-preview").innerHTML = u ? `<div class="pl-shot"><img src="${u}" alt="Screenshot preview"></div>` : ""; });
+  pay.proof = r;
+  el("pay-shot-area").textContent = r ? "Tap to replace the screenshot" : "Tap to choose a screenshot (JPEG, PNG or WebP, max 100 KB)";
+};
+fb.submitPayment = async (e) => {
+  e.preventDefault(); if (pay.busy) return;
+  const err = el("pay-error"); err.textContent = "";
+  const utr = el("pay-utr").value.trim().toUpperCase(), txn = el("pay-txn").value.trim().toUpperCase();
+  if (!pay.planId) { err.textContent = "Choose a plan."; return; }
+  if (!/^[A-Z0-9]{8,30}$/.test(utr)) { err.textContent = "Enter a valid UTR / reference number (8–30 letters or digits)."; return; }
+  if (txn && !/^[A-Z0-9_-]{6,40}$/.test(txn)) { err.textContent = "The transaction ID format is not valid."; return; }
+  const needShot = !S.config || S.config.screenshotRequired !== false;
+  if (needShot && !pay.proof) { err.textContent = "Please attach your payment screenshot."; return; }
+  const lim = limitInfo();
+  if (lim.blocked) { err.textContent = `Only one payment proof per 24 hours. Try again in ${fmtRemaining(lim.left)}.`; return; }
+  const plan = planList().find((p) => p.id === pay.planId);
+  if (!plan || !qrPublished()) { err.textContent = "Payments are not open yet."; return; }
+  pay.busy = true; refreshPayBanner(); el("pay-submit").textContent = "Submitting…";
+  try {
+    const uid = S.user.uid, rid = push(ref(db, "paymentRequests")).key;
+    const shot = pay.proof ? await imgToDataURL(pay.proof) : null;
+    const rec = {
+      id: rid, uid, email: (S.user.email || "").toLowerCase(),
+      displayName: ((S.profile && S.profile.displayName) || S.user.displayName || "").slice(0, 40),
+      planId: plan.id, planName: plan.name, amount: plan.price, currency: plan.currency, durationDays: plan.durationDays,
+      qrVersion: (S.config.qr && S.config.qr.version) || 0, utr, status: "pending", hasScreenshot: !!shot,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(), resubmitCount: 0
+    };
+    if (S.config.instructions) rec.instructionsSnapshot = String(S.config.instructions).slice(0, 1000);
+    if (txn) rec.txnId = txn;
+    const pd = el("pay-date").value; if (/^\d{4}-\d{2}-\d{2}$/.test(pd)) rec.paidDate = pd;
+    const nt = el("pay-note").value.trim().slice(0, 300); if (nt) rec.note = nt;
+    const upd = {
+      [`paymentRequests/${rid}`]: rec,
+      [`utrIndex/${utr}`]: { uid, requestId: rid, at: serverTimestamp() },
+      [`users/${uid}/limits/payment`]: { lastSubmittedAt: serverTimestamp(), requestId: rid }
+    };
+    if (shot) upd[`paymentProofs/${uid}/${rid}`] = shot;
+    await update(ref(db), upd);   // one atomic write: either everything is saved or nothing is
+    closeModal("pay-modal"); toast("Submitted. An administrator will verify your payment.");
+  } catch (x) {
+    const denied = x && (x.code === "PERMISSION_DENIED" || /permission_denied/i.test(x.message || ""));
+    err.textContent = denied ? "Not accepted: this UTR / reference number was already submitted, or a proof was already sent in the last 24 hours, or the plan changed. Refresh and try again." : friendlyError(x);
+  } finally { pay.busy = false; el("pay-submit").textContent = "Submit for verification"; refreshPayBanner(); }
+};
+
+/* ---- payment detail / correction ---- */
+let detailId = null, detailProof = null;
+fb.openPayment = (id) => { detailId = id; detailProof = null; renderPayDetail(); openModal("pay-detail-modal"); };
+async function renderPayDetail() {
+  const h = S.history.find((x) => x.id === detailId); const box = el("pay-detail-body");
+  if (!h) { box.innerHTML = '<p class="text-muted">Request not found.</p>'; return; }
+  const keepForm = box.querySelector("#d-utr");
+  if (keepForm && box.dataset.id === h.id && box.dataset.status === h.status) return; // don't wipe typing on unrelated updates
+  box.dataset.id = h.id; box.dataset.status = h.status;
+  box.innerHTML = `<div class="modal-header"><h3>Payment Request</h3><button class="close-modal-btn" onclick="closeModal('pay-detail-modal')">&times;</button></div>` +
+    row("Status", statusBadge(h.status)) + row("Request ID", `<span style="font-size:.72rem">${esc(h.id)}</span>`) + row("Plan", esc(h.planName)) +
+    row("Amount", esc(fmtMoney(h.amount, h.currency))) + row("Submitted", esc(fmtDT(h.createdAt))) + row("UTR / reference", esc(h.utr)) +
+    (h.txnId ? row("Transaction ID", esc(h.txnId)) : "") + (h.paidDate ? row("Payment date", esc(h.paidDate)) : "") +
+    (h.note ? row("Your note", esc(h.note)) : "") +
+    (h.adminResponse ? row("Administrator response", esc(h.adminResponse)) : "") +
+    (h.decidedAt ? row(h.status === "approved" ? "Verified on" : "Decided on", esc(fmtDT(h.decidedAt))) : "") +
+    `<div id="d-shot" class="mt-2"></div>` +
+    (h.status === "needs_info" ? `<div class="mt-4"><div class="pl-notice info">The administrator needs more information. Correct the details below and resubmit — this does not use another 24-hour submission.</div>
+      <div class="form-group"><label for="d-utr">UTR / reference number</label><input id="d-utr" class="form-control" maxlength="30" value="${esc(h.utr)}" autocapitalize="characters"></div>
+      <div class="form-group"><label for="d-note">Note</label><textarea id="d-note" class="form-control" rows="2" maxlength="300">${esc(h.note || "")}</textarea></div>
+      <div class="form-group"><label>Replace screenshot (optional)</label><input type="file" id="d-file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="PlanoraFB.onDetailProof(this)"><div class="pl-drop" onclick="document.getElementById('d-file').click()">Tap to choose a new screenshot</div><p class="text-muted" id="d-msg" style="margin-top:6px"></p></div>
+      <p id="d-err" style="color:var(--accent-red);font-size:.8rem;min-height:1em;margin-bottom:8px"></p>
+      <button class="btn btn-primary btn-block" id="d-submit" onclick="PlanoraFB.resubmitDetail()">Resubmit</button></div>` : "") +
+    (["pending", "needs_info"].includes(h.status) ? `<button class="btn btn-danger btn-block mt-2" onclick="PlanoraFB.cancelRequest()">Cancel this request</button>` : "");
+  if (h.hasScreenshot) {
+    get(ref(db, `paymentProofs/${S.user.uid}/${h.id}`)).then((s) => { const u = s.val(); const d = el("d-shot"); if (u && d && detailId === h.id) d.innerHTML = `<div class="pl-shot"><img src="${esc(u)}" alt="Submitted screenshot"></div>`; }).catch(() => {});
+  }
+}
+fb.onDetailProof = async (inp) => {
+  detailProof = await pickProof(inp, (m, bad) => { const n = el("d-msg"); n.textContent = m; n.style.color = bad ? "var(--accent-red)" : ""; }, () => {});
+};
+fb.resubmitDetail = async () => {
+  const err = el("d-err"), btn = el("d-submit"); err.textContent = "";
+  const h = S.history.find((x) => x.id === detailId); if (!h) return;
+  const utr = el("d-utr").value.trim().toUpperCase();
+  if (!/^[A-Z0-9]{8,30}$/.test(utr)) { err.textContent = "Enter a valid UTR / reference number."; return; }
+  if ((h.resubmitCount || 0) >= 5) { err.textContent = "Too many corrections for this request. Please contact support."; return; }
+  btn.disabled = true;
+  try {
+    const uid = S.user.uid, id = h.id, base = `paymentRequests/${id}`;
+    const note = el("d-note").value.trim().slice(0, 300);
+    const upd = { [`${base}/status`]: "pending", [`${base}/updatedAt`]: serverTimestamp(), [`${base}/resubmitCount`]: (h.resubmitCount || 0) + 1 };
+    if (note !== (h.note || "")) upd[`${base}/note`] = note || null;
+    if (utr !== h.utr) {
+      upd[`${base}/utr`] = utr;
+      upd[`utrIndex/${utr}`] = { uid, requestId: id, at: serverTimestamp() };
+      upd[`utrIndex/${h.utr}`] = null;
+    }
+    if (detailProof) { upd[`paymentProofs/${uid}/${id}`] = await imgToDataURL(detailProof); upd[`${base}/hasScreenshot`] = true; }
+    await update(ref(db), upd);
+    toast("Resubmitted for verification.");
+  } catch (x) {
+    const denied = x && (x.code === "PERMISSION_DENIED" || /permission_denied/i.test(x.message || ""));
+    err.textContent = denied ? "Not accepted: that UTR / reference number was already submitted, or this request changed. Close and reopen it." : friendlyError(x);
+  } finally { btn.disabled = false; }
+};
+fb.cancelRequest = () => openConfirm({ title: "Cancel this payment request?", body: "The request will be closed. If you already paid, contact support instead.", confirmText: "Cancel request" },
+  async () => {
+    const h = S.history.find((x) => x.id === detailId); if (!h) return;
+    try {
+      await update(ref(db), { [`paymentRequests/${h.id}/status`]: "cancelled", [`paymentRequests/${h.id}/updatedAt`]: serverTimestamp(), [`utrIndex/${h.utr}`]: null });
+      toast("Request cancelled.");
+    } catch (x) { toast(friendlyError(x)); }
+  });
+
+/* ---- support chat ---- */
+const pendingMsgs = new Map(); // key -> { state: 'sending'|'failed', payload }
+let chatUnsub = null, markedRead = new Set();
+const chatPath = () => `supportMessages/${S.user.uid}`;
+fb.openChat = () => {
+  if (!S.user) { openSignIn(); return; }
+  S.chatOpen = true; openModal("support-modal"); renderChatStatus(); renderChat();
+  if (chatUnsub) chatUnsub();
+  chatUnsub = onValue(query(ref(db, chatPath()), orderByChild("createdAt"), limitToLast(200)), (snap) => {
+    const a = []; snap.forEach((c) => { a.push(Object.assign({ id: c.key }, c.val())); });
+    S.chat = a;
+    a.forEach((m) => { if (pendingMsgs.has(m.id) && pendingMsgs.get(m.id).state !== "sending") pendingMsgs.delete(m.id); });
+    renderChat(); markAdminRead();
+  }, (err) => { el("chat-log").innerHTML = `<div class="empty-state"><p>Could not load messages (${esc(err.code || "error")}).</p><button class="btn btn-secondary btn-sm mt-2" onclick="PlanoraFB.openChat()">Retry</button></div>`; });
+  setTimeout(() => el("chat-input").focus(), 120);
+};
+fb.closeChat = () => { S.chatOpen = false; closeModal("support-modal"); if (chatUnsub) { chatUnsub(); chatUnsub = null; } };
+function renderChatStatus() {
+  const st = S.conv && S.conv.status === "resolved" ? "Resolved — send a message to reopen" : (S.online ? "Online" : "Offline — messages send when you reconnect");
+  el("chat-status").textContent = st;
+}
+function renderChat() {
+  const log = el("chat-log"); if (!log) return;
+  const near = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+  const ids = new Set(S.chat.map((m) => m.id));
+  const extra = [...pendingMsgs.entries()].filter(([k]) => !ids.has(k)).map(([k, v]) => Object.assign({ id: k, sender: "user", createdAt: v.payload.t, local: true }, { text: v.payload.text }));
+  const all = S.chat.concat(extra);
+  let html = `<div class="pl-notice info" style="margin-bottom:4px;">Messages go to the Planora admin. Replies appear here, but there is no guaranteed response time.</div>`;
+  if (!all.length) html += `<div class="empty-state"><p>No messages yet. Say hello 👋</p></div>`;
+  all.forEach((m) => {
+    const me = m.sender === "user", pm = pendingMsgs.get(m.id);
+    let meta = esc(fmtTime(m.createdAt));
+    if (me) {
+      if (pm && pm.state === "sending") meta += " · Sending…";
+      else if (pm && pm.state === "failed") meta += ` · Not sent <button onclick="PlanoraFB.retryChat('${esc(m.id)}')">Retry</button>`;
+      else meta += m.readAt ? " · Read" : " · Delivered";
+    }
+    html += `<div class="pl-bubble ${me ? "me" : "them"}">${esc(m.text)}<div class="pl-meta"${me ? "" : ' style="justify-content:flex-start"'}>${me ? "" : "Planora Support · "}${meta}</div></div>`;
+  });
+  const last = S.chat[S.chat.length - 1];
+  if (last && last.sender === "user") html += `<div class="text-muted" style="text-align:center;font-size:.75rem;">Message received · awaiting a reply from the admin</div>`;
+  log.innerHTML = html;
+  if (near || !log.dataset.init) { log.scrollTop = log.scrollHeight; log.dataset.init = "1"; }
+}
+function markAdminRead() {
+  if (!S.user) return;
+  const upd = {}; const uid = S.user.uid;
+  S.chat.forEach((m) => { if (m.sender === "admin" && !m.readAt && !markedRead.has(m.id)) { upd[`${chatPath()}/${m.id}/readAt`] = serverTimestamp(); markedRead.add(m.id); } });
+  if (S.conv && S.conv.unreadForUser) upd[`supportConversations/${uid}/unreadForUser`] = 0;
+  if (Object.keys(upd).length) update(ref(db), upd).catch((e) => { console.warn("mark read", e && e.code); });
+}
+function chatWrite(key, payload) {
+  const uid = S.user.uid, c = `supportConversations/${uid}`;
+  const dn = ((S.profile && S.profile.displayName) || S.user.displayName || "").slice(0, 40);
+  const cat = String(payload.category || "").slice(0, 30);
+  const o = {
+    [`${chatPath()}/${key}`]: { sender: "user", senderUid: uid, text: payload.text, category: cat, createdAt: serverTimestamp() },
+    [`${c}/uid`]: uid, [`${c}/name`]: dn, [`${c}/email`]: (S.user.email || "").toLowerCase().slice(0, 120),
+    [`${c}/lastMessage`]: payload.text.slice(0, 120), [`${c}/lastMessageAt`]: serverTimestamp(),
+    [`${c}/lastSender`]: "user", [`${c}/status`]: "open", [`${c}/unreadForAdmin`]: increment(1)
+  };
+  if (cat) o[`${c}/category`] = cat;
+  return o;
+}
+async function deliver(key, payload) {
+  pendingMsgs.set(key, { state: "sending", payload }); renderChat();
+  const r = ref(db, `${chatPath()}/${key}`);
+  try {
+    await Promise.race([
+      update(ref(db), chatWrite(key, payload)),
+      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 15000))
+    ]);
+    pendingMsgs.delete(key);
+  } catch (x) {
+    // if it actually landed (e.g. slow ack), treat as delivered; otherwise offer Retry with the SAME key (no duplicates)
+    let exists = false; try { exists = (await get(r)).exists(); } catch (e) {}
+    if (exists) pendingMsgs.delete(key); else pendingMsgs.set(key, { state: "failed", payload });
+  }
+  renderChat();
+}
+fb.sendChat = (e) => {
+  e.preventDefault();
+  const inp = el("chat-input"), text = inp.value.trim();
+  if (!text || !S.user) return;
+  if (text.length > 1000) { toast("Messages are limited to 1000 characters."); return; }
+  inp.value = ""; inp.style.height = "";
+  deliver(push(ref(db, chatPath())).key, { text, category: el("chat-cat").value, t: serverNow() });
+};
+fb.retryChat = (key) => { const m = pendingMsgs.get(key); if (m) deliver(key, m.payload); };
+document.addEventListener("DOMContentLoaded", () => {
+  const ta = el("chat-input"); if (!ta) return;
+  ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); el("chat-form").requestSubmit(); } });
+  ta.addEventListener("input", () => { ta.style.height = "auto"; ta.style.height = Math.min(110, ta.scrollHeight) + "px"; });
+});
+
+/* ---- optional cloud backup (merge, never destructive) ---- */
+fb.backupNow = async () => {
+  if (!S.user) return; const b = el("bk-now"); b.disabled = true;
+  try {
+    const email = appData.session.email;
+    const payload = { v: 1, tasks: appData.tasks, rapidHistory: appData.rapidHistory, mockCategories: appData.mockCategories, checkIns: appData.checkInsByUser[email] || [] };
+    const data = JSON.stringify(payload);
+    if (data.length > 2900000) throw new Error("Your data is too large to back up.");
+    await update(ref(db), {
+      [`users/${S.user.uid}/appBackupData`]: data,
+      [`users/${S.user.uid}/appBackup`]: { updatedAt: serverTimestamp(), counts: { tasks: payload.tasks.length, history: payload.rapidHistory.length, categories: payload.mockCategories.length } }
+    });
+    toast("Backed up to your account.");
+  } catch (x) { toast("Backup failed: " + friendlyError(x)); } finally { b.disabled = false; }
+};
+fb.restoreMerge = () => openConfirm({
+  title: "Restore from cloud?", body: "Items from your cloud backup that are missing on this device will be added. Nothing on this device is deleted or overwritten.", confirmText: "Restore (merge)"
+}, async () => {
+  try {
+    const snap = await get(ref(db, `users/${S.user.uid}/appBackupData`));
+    if (!snap.exists()) { toast("No backup found."); return; }
+    const d = JSON.parse(snap.val());
+    const email = appData.session.email; let added = 0;
+    const mergeById = (local, remote) => { const have = new Set(local.map((x) => x && x.id)); (Array.isArray(remote) ? remote : []).forEach((x) => { if (x && x.id != null && !have.has(x.id)) { local.push(x); added++; } }); };
+    mergeById(appData.tasks, d.tasks); mergeById(appData.rapidHistory, d.rapidHistory);
+    (Array.isArray(d.mockCategories) ? d.mockCategories : []).forEach((rc) => {
+      if (!rc || rc.id == null) return;
+      const lc = appData.mockCategories.find((c) => c.id === rc.id);
+      if (!lc) { appData.mockCategories.push(rc); added++; }
+      else { lc.scores = lc.scores || []; mergeById(lc.scores, rc.scores); }
+    });
+    const set0 = new Set(appData.checkInsByUser[email] || []);
+    (Array.isArray(d.checkIns) ? d.checkIns : []).forEach((x) => { if (/^\d{4}-\d{2}-\d{2}$/.test(x) && !set0.has(x)) { set0.add(x); added++; } });
+    appData.checkInsByUser[email] = [...set0].sort();
+    saveData(); renderDailyTasks(); renderRapidHistory(); renderMockCategories(); renderProfileView(); renderTaskGraph();
+    toast(added ? `Restored ${added} item${added === 1 ? "" : "s"}.` : "Already up to date.");
+  } catch (x) { toast("Restore failed: " + friendlyError(x)); }
+});
+
+scheduleRender();
+</script>
+
+</body>
+</html>

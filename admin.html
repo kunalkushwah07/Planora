@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Planora Admin</title>
+<style>
+:root{--bg-primary:#f8f6fc;--bg-card:#fff;--bg-card-subtle:#f3effa;--text-main:#1f1926;--text-muted:#6e6578;--border-color:#e5def0;--purple-primary:#7c3aed;--purple-light:#8b5cf6;--purple-dark:#6d28d9;--purple-subtle:#f3e8ff;--purple-glow:rgba(124,58,237,.15);--accent-green:#10b981;--accent-green-bg:#ecfdf5;--accent-red:#ef4444;--accent-red-bg:#fef2f2;--accent-amber:#f59e0b;--shadow-sm:0 2px 8px rgba(124,58,237,.05);--shadow-lg:0 8px 24px rgba(124,58,237,.12);--radius-sm:8px;--radius-md:14px;--radius-lg:20px;--radius-full:9999px;--transition-speed:.25s}
+[data-theme="dark"]{--bg-primary:#0f0c15;--bg-card:#181424;--bg-card-subtle:#231d34;--text-main:#f3effa;--text-muted:#a095b0;--border-color:#2e2640;--purple-primary:#8b5cf6;--purple-light:#a78bfa;--purple-dark:#7c3aed;--purple-subtle:#2d1f47;--purple-glow:rgba(139,92,246,.25);--accent-green:#34d399;--accent-green-bg:rgba(52,211,153,.1);--accent-red:#f87171;--accent-red-bg:rgba(248,113,113,.1);--accent-amber:#fbbf24;--shadow-sm:0 2px 8px rgba(0,0,0,.2);--shadow-lg:0 8px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg-primary);color:var(--text-main);min-height:100vh;transition:background-color var(--transition-speed),color var(--transition-speed)}
+header{position:sticky;top:0;z-index:50;background:var(--bg-card);border-bottom:1px solid var(--border-color);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px}.logo-icon{width:36px;height:36px;flex-shrink:0}.logo-icon svg{width:100%;height:100%;display:block}
+.brand-text h1{font-size:1.15rem;font-weight:700;background:linear-gradient(135deg,var(--purple-primary),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
+.header-greeting{font-size:.75rem;color:var(--text-muted);font-weight:500}
+.header-actions{display:flex;align-items:center;gap:10px}
+.theme-toggle-btn{background:var(--bg-card-subtle);border:1px solid var(--border-color);color:var(--text-main);width:38px;height:38px;border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;cursor:pointer}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 12px;background:var(--bg-card);border-bottom:1px solid var(--border-color);position:sticky;top:64px;z-index:40}
+.tab{background:none;border:none;color:var(--text-muted);font-weight:600;font-size:.85rem;padding:9px 14px;border-radius:var(--radius-md);cursor:pointer;white-space:nowrap;display:flex;gap:6px;align-items:center}
+.tab.active{background:var(--purple-subtle);color:var(--purple-primary)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.section{display:none}.section.active{display:block;animation:fadeIn .25s ease-in-out}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--bg-card);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;border:1px solid var(--border-color);box-shadow:var(--shadow-sm)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:var(--radius-md);font-weight:600;font-size:.88rem;border:none;cursor:pointer;transition:all .2s}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,var(--purple-primary),var(--purple-dark));color:#fff;box-shadow:0 4px 14px var(--purple-glow)}
+.btn-secondary{background:var(--bg-card-subtle);color:var(--text-main);border:1px solid var(--border-color)}
+.btn-danger{background:var(--accent-red-bg);color:var(--accent-red);border:1px solid rgba(239,68,68,.2)}
+.btn-success{background:var(--accent-green-bg);color:var(--accent-green);border:1px solid rgba(16,185,129,.25)}
+.btn-sm{padding:6px 12px;font-size:.78rem;border-radius:var(--radius-sm)}.btn-block{width:100%}
+.badge{padding:4px 10px;border-radius:var(--radius-full);font-size:.74rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge-purple{background:var(--purple-subtle);color:var(--purple-primary)}.badge-green{background:var(--accent-green-bg);color:var(--accent-green)}.badge-amber{background:rgba(245,158,11,.1);color:var(--accent-amber)}.badge-red{background:var(--accent-red-bg);color:var(--accent-red)}.badge-muted{background:var(--bg-card-subtle);color:var(--text-muted);border:1px solid var(--border-color)}
+h2.page{font-size:1.3rem;font-weight:700;margin-bottom:14px}.pl-title{font-size:1rem;font-weight:700}.text-muted{color:var(--text-muted);font-size:.85rem}
+.form-group{margin-bottom:14px}.form-group label{display:block;font-size:.85rem;font-weight:600;margin-bottom:6px}
+.form-control{width:100%;padding:11px;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-card-subtle);color:var(--text-main);font-size:.92rem;outline:none}.form-control:focus{border-color:var(--purple-primary)}textarea.form-control{resize:vertical}
+.flex-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);padding:14px}.stat .n{font-size:1.6rem;font-weight:800;color:var(--purple-primary)}.stat .l{font-size:.78rem;color:var(--text-muted);font-weight:600}
+.tbl-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.85rem}th{text-align:left;color:var(--text-muted);font-weight:600;font-size:.76rem;padding:8px 10px;border-bottom:1px solid var(--border-color);white-space:nowrap}td{padding:10px;border-bottom:1px dashed var(--border-color);vertical-align:middle}tr.click{cursor:pointer}tr.click:hover{background:var(--bg-card-subtle)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border-color);font-size:.88rem}.kv:last-child{border-bottom:none}.kv .k{color:var(--text-muted);font-size:.8rem}.kv .v{font-weight:600;text-align:right;word-break:break-all}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}.modal-overlay.active{display:flex}
+.modal-content{background:var(--bg-card);width:100%;max-height:90vh;overflow-y:auto;border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:22px;box-shadow:var(--shadow-lg)}
+@media(min-width:700px){.modal-overlay{align-items:center}.modal-content{border-radius:var(--radius-lg);max-width:560px}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.modal-header h3{font-size:1.15rem}.close{background:none;border:none;font-size:1.5rem;color:var(--text-muted);cursor:pointer}
+.notice{padding:10px 12px;border-radius:var(--radius-md);background:rgba(245,158,11,.1);color:var(--accent-amber);font-size:.82rem;font-weight:600;margin-bottom:12px;line-height:1.4}.notice.info{background:var(--purple-subtle);color:var(--purple-primary)}
+.err{color:var(--accent-red);font-size:.82rem;min-height:1em;margin:6px 0}
+.shot img,.qrprev img{max-width:100%;max-height:320px;border-radius:var(--radius-md);border:1px solid var(--border-color);background:#fff;display:block;margin:8px auto}
+.split{display:grid;grid-template-columns:1fr;gap:14px}@media(min-width:900px){.split{grid-template-columns:340px 1fr}}
+.conv{padding:12px;border:1px solid var(--border-color);border-radius:var(--radius-md);background:var(--bg-card-subtle);margin-bottom:8px;cursor:pointer}.conv.active{border-color:var(--purple-primary);background:var(--purple-subtle)}.conv .t{font-weight:700;font-size:.9rem;display:flex;justify-content:space-between;gap:6px}.conv .s{font-size:.78rem;color:var(--text-muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unread{background:var(--accent-red);color:#fff;border-radius:var(--radius-full);font-size:.7rem;font-weight:700;padding:2px 7px}
+.chatlog{height:52vh;min-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:6px 2px}
+.bubble{max-width:82%;padding:9px 12px;border-radius:16px;font-size:.9rem;line-height:1.4;white-space:pre-wrap;word-break:break-word}.bubble.me{align-self:flex-end;background:linear-gradient(135deg,var(--purple-primary),var(--purple-dark));color:#fff;border-bottom-right-radius:4px}.bubble.them{align-self:flex-start;background:var(--bg-card-subtle);border:1px solid var(--border-color);border-bottom-left-radius:4px}.bubble .meta{font-size:.68rem;opacity:.75;margin-top:4px}
+.login{max-width:400px;margin:8vh auto;padding:0 16px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-amber);margin-right:6px}.dot.on{background:var(--accent-green)}
+.hidden{display:none!important}
+</style>
+<script>try{var t=localStorage.getItem('PLANORA_ADMIN_THEME');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo-icon"><svg class="brand-logo" viewBox="313 308 1308 1308" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Planora logo">
+  <defs>
+    <linearGradient id="tileBase-s" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#5a2cc2"/>
+      <stop offset="0.35" stop-color="#4c22ae"/>
+      <stop offset="0.7"  stop-color="#391798"/>
+      <stop offset="1"    stop-color="#2b0f80"/>
+    </linearGradient>
+    <radialGradient id="tileGlow-s" cx="960" cy="372" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#7c3fdf" stop-opacity="0.95"/>
+      <stop offset="0.45" stop-color="#6430cf" stop-opacity="0.5"/>
+      <stop offset="1"   stop-color="#5a2cc2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tileEdge-s" x1="0" y1="328" x2="0" y2="1597" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a62dd" stop-opacity="0.75"/>
+      <stop offset="0.5" stop-color="#6a45c4" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#3a1a99" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="stemGrad-s" x1="0" y1="553" x2="0" y2="1378" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#fbf9ff"/>
+      <stop offset="1"    stop-color="#e7defd"/>
+    </linearGradient>
+    <linearGradient id="outerRing-s" x1="1230" y1="760" x2="1060" y2="1160" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.35" stop-color="#f4efff"/>
+      <stop offset="0.75" stop-color="#cdbbf7"/>
+      <stop offset="1"    stop-color="#b39af0"/>
+    </linearGradient>
+    <linearGradient id="innerRing-s" x1="900" y1="620" x2="1150" y2="1070" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#b79df2"/>
+      <stop offset="0.35" stop-color="#c3b0f6"/>
+      <stop offset="0.75" stop-color="#e9e1fd"/>
+      <stop offset="1"    stop-color="#ffffff"/>
+    </linearGradient>
+    <linearGradient id="innerStem-s" x1="0" y1="620" x2="0" y2="1060" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b79df2"/>
+      <stop offset="0.5" stop-color="#d6c9f9"/>
+      <stop offset="1"   stop-color="#eee8ff"/>
+    </linearGradient>
+    <linearGradient id="lowerBand-s" x1="1000" y1="1100" x2="740" y2="1370" gradientUnits="userSpaceOnUse">
+      <stop offset="0"   stop-color="#b39af0"/>
+      <stop offset="0.6" stop-color="#b59cf1"/>
+      <stop offset="1"   stop-color="#c5b3f6"/>
+    </linearGradient>
+    <linearGradient id="checkGrad-s" x1="1200" y1="640" x2="940" y2="990" gradientUnits="userSpaceOnUse">
+      <stop offset="0"    stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#f1ebff"/>
+      <stop offset="1"    stop-color="#c3aff5"/>
+    </linearGradient>
+    <mask id="gapMask-s" maskUnits="userSpaceOnUse" x="0" y="0" width="1932" height="1932">
+      <rect width="1932" height="1932" fill="#fff"/>
+      <polygon points="900,896 1400,396 1400,584 900,1084" fill="#000"/>
+    </mask>
+    <filter id="tileShadow-s" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="26" stdDeviation="30" flood-color="#3a2a78" flood-opacity="0.22"/>
+    </filter>
+    <filter id="pShadow-s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="6" dy="18" stdDeviation="16" flood-color="#1a0a5c" flood-opacity="0.38"/>
+    </filter>
+    <filter id="checkShadow-s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="2" dy="8" stdDeviation="7" flood-color="#1a0a5c" flood-opacity="0.3"/>
+    </filter>
+    <clipPath id="tileClip-s">
+      <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330"/>
+    </clipPath>
+  </defs>
+  <g filter="url(#tileShadow-s)">
+    <rect x="333" y="328" width="1267" height="1269" rx="330" ry="330" fill="url(#tileBase-s)"/>
+  </g>
+  <g clip-path="url(#tileClip-s)">
+    <rect x="333" y="328" width="1267" height="1269" fill="url(#tileGlow-s)"/>
+    <rect x="333" y="1100" width="1267" height="497" fill="#24097a" opacity="0.18"/>
+  </g>
+  <rect x="336" y="331" width="1261" height="1263" rx="327" ry="327" fill="none" stroke="url(#tileEdge-s)" stroke-width="6"/>
+  <g filter="url(#pShadow-s)">
+    <g mask="url(#gapMask-s)" fill="none">
+      <path d="M815 653 H990 A207 207 0 0 1 990 1067" stroke="url(#innerRing-s)" stroke-width="67"/>
+      <path d="M780 587 H990 A273 273 0 0 1 990 1133" stroke="url(#outerRing-s)" stroke-width="67"/>
+    </g>
+    <path d="M753 1060 V715 A62 62 0 0 1 815 653" fill="none" stroke="url(#innerStem-s)" stroke-width="67"/>
+    <path d="M687 1378 V680 A93 93 0 0 1 780 587 H990" fill="none" stroke="url(#stemGrad-s)" stroke-width="67"/>
+    <path d="M990 1100 H835 A115 115 0 0 0 720 1215 V1378 Q787 1365 787 1280 V1215 A48 48 0 0 1 835 1167 H990 Z" fill="url(#lowerBand-s)"/>
+    <path d="M990 1035 H835 Q805 1035 787 1044 L720 1075 V1215 A115 115 0 0 1 835 1100 H990 Z" fill="#ffffff"/>
+    <path d="M720 1075 L787 1044 V1100 H720 Z" fill="#f4f0ff" opacity="0.0"/>
+  </g>
+  <g filter="url(#checkShadow-s)">
+    <polygon points="887,803 830,860 958,992 1247,698 1195,636 958,875" fill="url(#checkGrad-s)"/>
+  </g>
+</svg></div><div class="brand-text"><h1>Planora Admin</h1><div class="header-greeting" id="who">Plan Smart, Do Better.</div></div></div>
+  <div class="header-actions"><span class="text-muted" id="conn"></span>
+    <button class="btn btn-secondary btn-sm hidden" id="signout-btn">Sign out</button>
+    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div>
+</header>
+
+<!-- SIGN IN -->
+<div class="login hidden" id="login-view"><div class="card">
+  <h2 class="page">Administrator sign in</h2>
+  <form id="login-form" novalidate>
+    <div class="form-group"><label for="l-email">Email</label><input id="l-email" class="form-control" type="email" autocomplete="username"></div>
+    <div class="form-group"><label for="l-pass">Password</label><input id="l-pass" class="form-control" type="password" autocomplete="current-password"></div>
+    <div class="err" id="l-err"></div>
+    <button class="btn btn-primary btn-block" id="l-btn" type="submit">Sign in</button>
+  </form>
+  <p class="text-muted" style="margin-top:12px;line-height:1.45">Access is granted only to accounts whose UID is listed under <b>admins</b> in the database. Signing in alone does not unlock anything.</p>
+</div></div>
+
+<!-- DENIED / SETUP -->
+<div class="login hidden" id="denied-view"><div class="card">
+  <h2 class="page">Administrator access not enabled</h2>
+  <div class="notice">This account (<b id="deny-email"></b>) is signed in but is not listed as an administrator, so everything is locked.</div>
+  <p class="text-muted" style="line-height:1.5">One-time setup in the Firebase console: <b>Realtime Database → Data</b> → add a child under the root named <b>admins</b>, inside it a child named with this UID, value <b>true</b>:</p>
+  <pre style="background:var(--bg-card-subtle);padding:12px;border-radius:var(--radius-md);font-size:.78rem;overflow-x:auto;margin:10px 0;white-space:pre-wrap;word-break:break-all">admins / <span id="deny-uid">uid</span> : true</pre>
+  <button class="btn btn-secondary btn-sm" id="deny-copy" type="button">Copy UID</button>
+  <p class="text-muted" style="line-height:1.5;margin-top:10px">Then reload this page. Nobody can add themselves — the rules allow no one to write under <b>admins</b>.</p>
+  <button class="btn btn-secondary btn-block" style="margin-top:12px" id="deny-signout">Sign out</button>
+</div></div>
+
+<!-- APP -->
+<div id="app-view" class="hidden">
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-s="dash">Dashboard</button>
+  <button class="tab" data-s="pay">Payments <span class="unread hidden" id="b-pay"></span></button>
+  <button class="tab" data-s="users">Users</button>
+  <button class="tab" data-s="support">Support <span class="unread hidden" id="b-sup"></span></button>
+  <button class="tab" data-s="qr">QR &amp; Plans</button>
+  <button class="tab" data-s="rewards">Rewards</button>
+  <button class="tab" data-s="activity">Activity</button>
+</nav>
+<main>
+<section class="section active" id="s-dash">
+  <h2 class="page">Dashboard</h2>
+  <div class="stats" id="stats"></div>
+  <div class="card"><h3 class="pl-title" style="margin-bottom:8px">Recent registrations</h3><div class="tbl-wrap" id="recent-users"></div></div>
+  <div class="card"><h3 class="pl-title" style="margin-bottom:8px">Recent administrative activity</h3><div id="recent-activity"></div></div>
+</section>
+
+<section class="section" id="s-pay">
+  <div class="flex-between"><h2 class="page">Payment requests</h2>
+    <select id="pay-filter" class="form-control" style="width:auto"><option value="pending">Pending verification</option><option value="needs_info">Needs more info</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option></select></div>
+  <div class="notice info">A screenshot is not proof of payment. Confirm each transaction (UTR and amount) in your bank / UPI records before approving.</div>
+  <div class="card"><div class="tbl-wrap" id="pay-list"></div></div>
+</section>
+
+<section class="section" id="s-users">
+  <h2 class="page">Users</h2>
+  <div class="card">
+    <div class="row"><input id="u-q" class="form-control" placeholder="Search name, email or UID"><select id="u-filter" class="form-control"><option value="">All subscriptions</option><option value="active">Active</option><option value="expired">Expired</option><option value="cancelled">Cancelled</option><option value="free">Free (none)</option></select><button class="btn btn-primary" id="u-go">Search</button></div>
+    <p class="text-muted" style="margin-top:8px">Name/email search matches the start of the text. Paste a full UID for an exact lookup.</p>
+  </div>
+  <div class="card"><div class="tbl-wrap" id="u-list"></div><div style="margin-top:12px;text-align:center"><button class="btn btn-secondary btn-sm hidden" id="u-more">Load more</button></div></div>
+</section>
+
+<section class="section" id="s-support">
+  <h2 class="page">Support inbox</h2>
+  <div class="split">
+    <div class="card" style="margin:0"><div class="row" style="margin-bottom:10px"><input id="c-q" class="form-control" placeholder="Search conversations"><select id="c-filter" class="form-control"><option value="all">All</option><option value="unread">Unread</option><option value="open">Open</option><option value="resolved">Resolved</option></select></div><div id="c-list"></div></div>
+    <div class="card" style="margin:0" id="chat-pane"><p class="text-muted">Select a conversation.</p></div>
+  </div>
+</section>
+
+<section class="section" id="s-qr">
+  <h2 class="page">QR &amp; subscription plans</h2>
+  <div class="card"><h3 class="pl-title" style="margin-bottom:10px">Payment QR</h3>
+    <div class="qrprev" id="qr-current"></div>
+    <div class="form-group" style="margin-top:12px"><label>Upload a new QR image (PNG, JPEG or WebP — resized automatically)</label><input type="file" id="qr-file" class="form-control" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="qrprev" id="qr-preview"></div><div class="err" id="qr-err"></div>
+    <div class="row"><button class="btn btn-primary" id="qr-publish" disabled>Publish / replace QR</button><button class="btn btn-danger" id="qr-remove">Remove QR</button></div>
+    <p class="text-muted" style="margin-top:8px">Users see changes instantly.</p>
+  </div>
+  <div class="card"><h3 class="pl-title" style="margin-bottom:10px">Payment instructions &amp; policy</h3>
+    <div class="form-group"><label for="ins">Instructions shown with the QR (payee name, UPI ID, how to pay)</label><textarea id="ins" class="form-control" rows="4" maxlength="1000"></textarea></div>
+    <div class="form-group"><label><input type="checkbox" id="shot-req" checked> Require a payment screenshot with every submission</label></div>
+    <div class="err" id="ins-err"></div><button class="btn btn-primary" id="ins-save">Save instructions</button>
+  </div>
+  <div class="card"><div class="flex-between" style="margin-bottom:10px"><h3 class="pl-title">Subscription plans</h3><button class="btn btn-secondary btn-sm" id="plan-add">Add plan</button></div><div id="plan-list"></div><p class="text-muted" style="margin-top:8px">No plans exist until you add them. Prices are never hard-coded anywhere.</p></div>
+</section>
+
+<section class="section" id="s-rewards"><h2 class="page">60-day reward requests</h2><div class="notice info">Eligibility is re-counted from the user’s own check-ins, which carry the server’s timestamp. Approving adds 30 days of Premium.</div><div class="card"><div class="tbl-wrap" id="rw-list"></div></div></section>
+<section class="section" id="s-activity"><h2 class="page">Administrative activity</h2><div class="card" id="act-list"></div></section>
+</main>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal"><div class="modal-content" id="modal-body"></div></div>
+<div class="modal-overlay" id="confirm"><div class="modal-content"><div class="modal-header"><h3 id="cf-t">Confirm</h3><button class="close" onclick="document.getElementById('confirm').classList.remove('active')">&times;</button></div><p class="text-muted" id="cf-b" style="margin-bottom:16px;line-height:1.5"></p><div class="row"><button class="btn btn-secondary" onclick="document.getElementById('confirm').classList.remove('active')">Cancel</button><button class="btn btn-primary" id="cf-ok">Confirm</button></div></div></div>
+
+<script type="module">
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+import { getDatabase, ref, get, set, update, push, onValue, query, orderByChild, limitToLast, equalTo, endBefore, endAt, startAt, serverTimestamp, increment, runTransaction } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCBxc_qHBbFz7NPBr1eqihc6xPFDNIUVVI",
+  authDomain: "planora007.firebaseapp.com",
+  databaseURL: "https://planora007-default-rtdb.firebaseio.com",
+  projectId: "planora007",
+  storageBucket: "planora007.firebasestorage.app",
+  messagingSenderId: "725424373722",
+  appId: "1:725424373722:web:e75c8a16eb400de8c30ae3",
+  measurementId: "G-QQEQE4W3SS"
+};
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig); // single initialisation
+import("https://www.gstatic.com/firebasejs/13.0.0/firebase-analytics.js").then((m) => m.isSupported().then((ok) => ok && m.getAnalytics(app))).catch(() => {});
+const auth = getAuth(app), db = getDatabase(app);
+
+/* helpers */
+const DAY = 86400000;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtDT = (ms) => (ms ? new Date(ms).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) : "—");
+const fmtD = (ms) => (ms ? new Date(ms).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
+const money = (n, c) => { try { return new Intl.NumberFormat(undefined, { style: "currency", currency: c || "INR" }).format(n); } catch (e) { return (c || "") + " " + n; } };
+const kv = (k, v) => `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+const ST = { pending: ["badge-amber", "Pending"], approving: ["badge-amber", "Approving"], approved: ["badge-green", "Approved"], rejected: ["badge-red", "Rejected"], needs_info: ["badge-purple", "Needs info"], cancelled: ["badge-muted", "Cancelled"] };
+const badge = (s) => `<span class="badge ${(ST[s] || ["badge-muted"])[0]}">${esc((ST[s] || [0, s || "—"])[1])}</span>`;
+const subBadge = (s) => `<span class="badge ${s === "active" ? "badge-green" : s === "expired" || s === "cancelled" ? "badge-red" : "badge-muted"}">${esc(s || "free")}</span>`;
+let srvOff = 0; const srvNow = () => Date.now() + srvOff;
+onValue(ref(db, ".info/serverTimeOffset"), (s) => { srvOff = s.val() || 0; });
+const effStatus = (u) => (u && u.subStatus === "active" && u.expiresAt && u.expiresAt <= srvNow() ? "expired" : (u && u.subStatus) || "");
+const newKey = () => push(ref(db, "_k")).key;
+function err(e) {
+  const c = (e && e.code) || "";
+  if (c === "PERMISSION_DENIED" || /permission_denied/i.test((e && e.message) || "")) return "Permission denied. Check that your UID is under admins in the Realtime Database and that the rules are published.";
+  return (e && e.message) || "Something went wrong.";
+}
+function openModal(html) { $("modal-body").innerHTML = html; $("modal").classList.add("active"); }
+function closeModal() { $("modal").classList.remove("active"); $("modal-body").innerHTML = ""; }
+window.closeModal = closeModal;
+function confirmBox(title, body, okText, fn) {
+  $("cf-t").textContent = title; $("cf-b").textContent = body; $("cf-ok").textContent = okText || "Confirm";
+  $("cf-ok").onclick = async () => { $("confirm").classList.remove("active"); await fn(); };
+  $("confirm").classList.add("active");
+}
+async function sniff(file) {
+  const b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (b[0] === 0xff && b[1] === 0xd8) return "image/jpeg";
+  if (b[0] === 0x89 && b[1] === 0x50) return "image/png";
+  if (b[0] === 0x52 && b[1] === 0x49 && b[8] === 0x57) return "image/webp";
+  return null;
+}
+function actEntry(action, detail, targetUid, refId) {
+  const me = auth.currentUser;
+  const e = { at: serverTimestamp(), adminUid: me.uid, adminEmail: (me.email || "").slice(0, 120), action };
+  if (detail) e.detail = String(detail).slice(0, 300); if (targetUid) e.targetUid = targetUid; if (refId) e.refId = refId;
+  return e;
+}
+const logActivity = (action, detail, targetUid, refId) => set(ref(db, "adminActivity/" + newKey()), actEntry(action, detail, targetUid, refId)).catch(() => {});
+const notifEntry = (title, body) => ({ title: String(title).slice(0, 120), body: String(body || "").slice(0, 500), createdAt: serverTimestamp(), read: false });
+
+/* theme + connection */
+$("theme-toggle").onclick = () => { const n = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", n); try { localStorage.setItem("PLANORA_ADMIN_THEME", n); } catch (e) {} };
+onValue(ref(db, ".info/connected"), (s) => { $("conn").innerHTML = `<span class="dot ${s.val() ? "on" : ""}"></span>${s.val() ? "Live" : "Offline"}`; });
+
+/* listener registry: each section subscribes on enter and unsubscribes on leave */
+let unsubs = []; let current = null;
+const L = (q, cb, label) => { unsubs.push(onValue(q, cb, (e) => { console.warn(label, e); toastErr(label + ": " + (e.code || e.message)); })); };
+function stopAll() { unsubs.forEach((u) => { try { u(); } catch (e) {} }); unsubs = []; chatUnsub && chatUnsub(); chatUnsub = null; }
+function toastErr(m) { const n = document.querySelector(".section.active"); if (n && !n.querySelector(".err.top")) { const d = document.createElement("div"); d.className = "notice err top"; d.textContent = m; n.prepend(d); setTimeout(() => d.remove(), 6000); } }
+
+/* auth + role gate: admin = a UID listed at /admins/<uid> = true (set once in the Firebase console) */
+let isAdmin = false;
+onAuthStateChanged(auth, async (user) => {
+  stopAll(); isAdmin = false;
+  ["login-view", "denied-view", "app-view"].forEach((i) => $(i).classList.add("hidden"));
+  $("signout-btn").classList.toggle("hidden", !user);
+  if (!user) { $("who").textContent = "Plan Smart, Do Better."; $("login-view").classList.remove("hidden"); return; }
+  try { isAdmin = (await get(ref(db, "admins/" + user.uid))).val() === true; } catch (e) { isAdmin = false; }
+  if (!isAdmin) { $("deny-email").textContent = user.email || ""; $("deny-uid").textContent = user.uid; $("denied-view").classList.remove("hidden"); return; }
+  $("who").textContent = user.email; $("app-view").classList.remove("hidden"); go(current || "dash", true);
+});
+$("login-form").onsubmit = async (e) => {
+  e.preventDefault(); const b = $("l-btn"), er = $("l-err"); er.textContent = ""; b.disabled = true;
+  try { await signInWithEmailAndPassword(auth, $("l-email").value.trim(), $("l-pass").value); }
+  catch (x) { er.textContent = ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(x.code) ? "Incorrect email or password." : err(x); }
+  finally { b.disabled = false; }
+};
+$("signout-btn").onclick = $("deny-signout").onclick = () => signOut(auth);
+$("deny-copy").onclick = () => { const t = $("deny-uid").textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => ($("deny-copy").textContent = "Copied")).catch(() => {}); };
+
+/* navigation */
+const sections = { dash: enterDash, pay: enterPay, users: enterUsers, support: enterSupport, qr: enterQR, rewards: enterRewards, activity: enterActivity };
+document.querySelectorAll(".tab").forEach((t) => (t.onclick = () => go(t.dataset.s)));
+function go(name, force) {
+  if (!isAdmin) return;
+  if (current === name && !force) return;
+  stopAll(); current = name;
+  document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.s === name));
+  document.querySelectorAll(".section").forEach((s) => s.classList.toggle("active", s.id === "s-" + name));
+  sections[name]();
+  badgeListeners();
+}
+function badgeListeners() { // small live badges (pending payments + unread chats) shown on every tab
+  L(query(ref(db, "paymentRequests"), orderByChild("status"), equalTo("pending")), (s) => { let n = 0; s.forEach(() => { n++; }); $("b-pay").textContent = n; $("b-pay").classList.toggle("hidden", !n); }, "badge");
+  L(query(ref(db, "supportConversations"), orderByChild("unreadForAdmin"), startAt(1)), (s) => { let n = 0; s.forEach((c) => { n += c.val().unreadForAdmin || 0; }); $("b-sup").textContent = n; $("b-sup").classList.toggle("hidden", !n); }, "badge");
+}
+
+/* subscription engine (runs in the browser; only an admin can write /users/<uid>/subscription — see rules) */
+async function applySubscription(uid, p) {
+  const now = srvNow();
+  return runTransaction(ref(db, `users/${uid}/subscription`), (cur) => {
+    if (cur && cur.applied && cur.applied[p.requestId]) return; // already applied -> abort, never double-activate
+    const stillActive = cur && cur.status === "active" && cur.expiresAt > now;
+    const startAt = stillActive ? cur.startAt : now;
+    const base = stillActive ? cur.expiresAt : now;
+    const applied = Object.assign({}, cur && cur.applied, { [p.requestId]: now });
+    return { planId: p.planId, planName: p.planName, status: "active", startAt, expiresAt: base + p.durationDays * DAY, lastRequestId: p.requestId, updatedAt: now, applied };
+  });
+}
+const dirSub = (uid, sub) => ({
+  [`userDirectory/${uid}/planName`]: sub ? String(sub.planName || "").slice(0, 60) : "",
+  [`userDirectory/${uid}/subStatus`]: sub ? sub.status : "",
+  [`userDirectory/${uid}/expiresAt`]: sub ? sub.expiresAt : null,
+  [`userDirectory/${uid}/startAt`]: sub ? sub.startAt : null
+});
+
+/* dashboard */
+let dirAll = [], payCounts = {}, unreadN = 0;
+function renderStats() {
+  const n = (k) => payCounts[k] || 0; const now = srvNow();
+  const active = dirAll.filter((u) => u.subStatus === "active" && u.expiresAt > now).length;
+  const card = (v, l) => `<div class="stat"><div class="n">${v}</div><div class="l">${l}</div></div>`;
+  $("stats").innerHTML = card(dirAll.length, "Registered users") + card(active, "Active subscriptions") + card(n("pending") + n("approving"), "Pending payments") + card(n("needs_info"), "Awaiting user info") + card(n("approved"), "Approved payments") + card(n("rejected"), "Rejected payments") + card(unreadN, "Unread support messages");
+}
+function enterDash() {
+  L(ref(db, "userDirectory"), (s) => {
+    dirAll = []; s.forEach((c) => { dirAll.push(c.val()); }); renderStats();
+    const a = dirAll.slice().sort((x, y) => (y.createdAt || 0) - (x.createdAt || 0)).slice(0, 8);
+    $("recent-users").innerHTML = a.length ? usersTable(a) : '<p class="text-muted">No users yet.</p>'; bindUserRows();
+  }, "users");
+  L(ref(db, "paymentRequests"), (s) => { payCounts = {}; s.forEach((c) => { const k = (c.val() || {}).status || "pending"; payCounts[k] = (payCounts[k] || 0) + 1; }); renderStats(); }, "payments");
+  L(query(ref(db, "supportConversations"), orderByChild("unreadForAdmin"), startAt(1)), (s) => { unreadN = 0; s.forEach((c) => { unreadN += c.val().unreadForAdmin || 0; }); renderStats(); }, "unread");
+  L(query(ref(db, "adminActivity"), orderByChild("at"), limitToLast(8)), (s) => { $("recent-activity").innerHTML = actHTML(s); }, "activity");
+}
+function actHTML(s) {
+  const a = []; s.forEach((c) => { a.push(c.val()); }); a.reverse();
+  return a.length ? a.map((x) => kv(esc(x.action), `${esc(x.adminEmail || "")} · ${esc(fmtDT(x.at))}${x.detail ? "<br><span class='text-muted'>" + esc(x.detail) + "</span>" : ""}`)).join("") : '<p class="text-muted">No activity yet.</p>';
+}
+function enterActivity() { L(query(ref(db, "adminActivity"), orderByChild("at"), limitToLast(100)), (s) => { $("act-list").innerHTML = actHTML(s); }, "activity"); }
+
+/* payments */
+function enterPay() { loadPay(); }
+$("pay-filter").onchange = () => { if (current === "pay") { stopAll(); enterPay(); badgeListeners(); } };
+let payRows = {};
+function loadPay() {
+  const st = $("pay-filter").value;
+  L(query(ref(db, "paymentRequests"), orderByChild("status"), equalTo(st), limitToLast(100)), (s) => {
+    const a = []; s.forEach((c) => { a.push(c.val()); }); a.sort((x, y) => y.createdAt - x.createdAt); payRows = {}; a.forEach((r) => (payRows[r.id] = r));
+    $("pay-list").innerHTML = a.length ? `<table><thead><tr><th>Submitted</th><th>User</th><th>Plan</th><th>Amount</th><th>UTR</th><th>Status</th></tr></thead><tbody>${a.map((r) => `<tr class="click" data-id="${esc(r.id)}"><td>${esc(fmtDT(r.createdAt))}</td><td>${esc(r.displayName || "—")}<br><span class="text-muted">${esc(r.email)}</span></td><td>${esc(r.planName)}</td><td>${esc(money(r.amount, r.currency))}</td><td>${esc(r.utr)}</td><td>${badge(r.status)}</td></tr>`).join("")}</tbody></table>` : '<p class="text-muted">Nothing here.</p>';
+    document.querySelectorAll("#pay-list tr.click").forEach((tr) => (tr.onclick = () => openPayment(tr.dataset.id)));
+  }, "payments");
+}
+async function reviewPayment(r, action, msg, note) {
+  const me = auth.currentUser, base = `paymentRequests/${r.id}`;
+  const target = action === "approve" ? "approving" : action === "reject" ? "rejected" : "needs_info";
+  // race-safe status transition: a second admin / double click cannot process the same request twice
+  const tx = await runTransaction(ref(db, base + "/status"), (cur) => {
+    if (cur === "pending" || cur === "needs_info" || (cur === "approving" && action === "approve")) return target;
+    return cur === null ? null : undefined;
+  });
+  if (!tx.committed || tx.snapshot.val() !== target) throw new Error("This request was already processed (or changed). Refresh the list.");
+  const upd = {}; let title, body;
+  upd[base + "/adminResponse"] = msg || null; upd[base + "/updatedAt"] = serverTimestamp();
+  upd["paymentAdmin/" + r.id] = Object.assign({ decidedBy: me.uid, at: serverTimestamp() }, note ? { internalNote: note } : {});
+  if (action === "approve") {
+    await applySubscription(r.uid, { planId: r.planId, planName: r.planName, durationDays: r.durationDays, requestId: r.id });
+    const sub = (await get(ref(db, `users/${r.uid}/subscription`))).val();
+    Object.assign(upd, dirSub(r.uid, sub));
+    upd[base + "/status"] = "approved"; upd[base + "/decidedAt"] = serverTimestamp();
+    title = "Payment approved"; body = `Your ${r.planName} subscription is now active.`;
+  } else if (action === "reject") {
+    upd["utrIndex/" + r.utr] = null; upd[base + "/decidedAt"] = serverTimestamp();
+    title = "Payment rejected"; body = msg || "Your payment could not be verified.";
+  } else {
+    upd[base + "/decidedAt"] = null; title = "More information needed"; body = msg;
+  }
+  upd[`users/${r.uid}/notifications/${newKey()}`] = notifEntry(title, body);
+  upd["adminActivity/" + newKey()] = actEntry("payment_" + action, `${r.planName} ${r.amount} ${r.currency || ""}`, r.uid, r.id);
+  await update(ref(db), upd);
+}
+async function openPayment(id) {
+  const r = payRows[id] || (await get(ref(db, "paymentRequests/" + id))).val(); if (!r) return;
+  const adm = (await get(ref(db, "paymentAdmin/" + id)).catch(() => null));
+  const an = adm ? adm.val() || {} : {};
+  const decidable = ["pending", "needs_info", "approving"].includes(r.status);
+  openModal(`<div class="modal-header"><h3>Payment request</h3><button class="close" onclick="closeModal()">&times;</button></div>` +
+    kv("Status", badge(r.status)) + kv("Request ID", esc(r.id)) + kv("User", esc(r.displayName || "—")) + kv("Email", esc(r.email)) + kv("UID", `<span style="font-size:.72rem">${esc(r.uid)}</span>`) +
+    kv("Plan", esc(r.planName)) + kv("Amount", esc(money(r.amount, r.currency))) + kv("Duration", esc(r.durationDays + " days")) + kv("UTR", esc(r.utr)) + (r.txnId ? kv("Transaction ID", esc(r.txnId)) : "") + (r.paidDate ? kv("Paid on", esc(r.paidDate)) : "") + kv("Submitted", esc(fmtDT(r.createdAt))) +
+    (r.note ? kv("User note", esc(r.note)) : "") + (r.adminResponse ? kv("Last response", esc(r.adminResponse)) : "") + (an.internalNote ? kv("Internal note", esc(an.internalNote)) : "") + (r.decidedAt ? kv("Decided", esc(fmtDT(r.decidedAt))) : "") +
+    `<div class="shot" id="pshot"><p class="text-muted">${r.hasScreenshot ? "Loading screenshot…" : "No screenshot attached."}</p></div>` +
+    (decidable ? `<div class="notice" style="margin-top:10px">Verify the UTR and amount in your own bank/UPI records first.</div>
+      <div class="form-group"><label>Message to user (shown in their app)</label><textarea id="pm" class="form-control" rows="2" maxlength="500"></textarea></div>
+      <div class="form-group"><label>Internal note (admins only)</label><textarea id="pn" class="form-control" rows="2" maxlength="500"></textarea></div><div class="err" id="perr"></div>
+      <div class="row"><button class="btn btn-success" data-a="approve">Approve</button><button class="btn btn-danger" data-a="reject">Reject</button><button class="btn btn-secondary" data-a="needs_info">Ask for info</button></div>` : ""));
+  if (r.hasScreenshot) get(ref(db, `paymentProofs/${r.uid}/${r.id}`)).then((s) => { const u = s.val(); const n = $("pshot"); if (n) n.innerHTML = u ? `<img src="${esc(u)}" alt="Payment screenshot" style="cursor:zoom-in" onclick="var w=window.open();w&&(w.document.title='Screenshot',w.document.body.style.margin='0',w.document.body.innerHTML='<img style=&quot;max-width:100%&quot; src=&quot;'+this.src+'&quot;>')">` : '<p class="text-muted">Screenshot missing.</p>'; }).catch(() => { const n = $("pshot"); if (n) n.innerHTML = '<p class="text-muted">Screenshot could not be loaded.</p>'; });
+  document.querySelectorAll("#modal-body [data-a]").forEach((b) => (b.onclick = () => {
+    const a = b.dataset.a; const msg = $("pm").value.trim();
+    if (a === "needs_info" && !msg) { $("perr").textContent = "Write what information the user should provide."; return; }
+    confirmBox({ approve: "Approve payment?", reject: "Reject payment?", needs_info: "Request more information?" }[a], a === "approve" ? `This activates "${r.planName}" for ${r.durationDays} days for ${r.email}. It cannot be applied twice.` : "The user will be notified.", "Yes, continue", async () => {
+      try { await reviewPayment(r, a, msg, $("pn").value.trim()); closeModal(); }
+      catch (e) { const pe = $("perr"); if (pe) pe.textContent = err(e); else toastErr(err(e)); }
+    });
+  }));
+}
+
+/* users */
+let uCursor = null;
+const usersTable = (a) => `<table><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Status</th><th>Expiry</th><th>Joined</th></tr></thead><tbody>${a.map((u) => `<tr class="click" data-uid="${esc(u.uid)}"><td>${esc(u.displayName || "—")}</td><td>${esc(u.email)}</td><td>${esc(u.planName || "Free")}</td><td>${subBadge(effStatus(u))}</td><td>${esc(fmtD(u.expiresAt))}</td><td>${esc(fmtD(u.createdAt))}</td></tr>`).join("")}</tbody></table>`;
+function bindUserRows() { document.querySelectorAll("tr[data-uid]").forEach((tr) => (tr.onclick = () => openUser(tr.dataset.uid))); }
+function enterUsers() { uCursor = null; $("u-list").innerHTML = ""; loadUsers(true); }
+$("u-go").onclick = () => loadUsers(true); $("u-more").onclick = () => loadUsers(false);
+$("u-q").addEventListener("keydown", (e) => { if (e.key === "Enter") loadUsers(true); });
+let uRows = [];
+async function loadUsers(reset) {
+  const q = $("u-q").value.trim(), f = $("u-filter").value; const dir = ref(db, "userDirectory"); const PAGE = 25; let rows = [];
+  $("u-more").classList.add("hidden");
+  try {
+    if (reset) { uCursor = null; uRows = []; }
+    if (q && !q.includes("@") && q.length >= 15 && !q.includes(" ")) { const s = await get(ref(db, "userDirectory/" + q)); rows = s.exists() ? [s.val()] : []; }
+    else if (q) {
+      const lo = q.toLowerCase();
+      const [a, b] = await Promise.all([get(query(dir, orderByChild("emailLower"), startAt(lo), endAt(lo + "\uf8ff"), limitToLast(50))), get(query(dir, orderByChild("nameLower"), startAt(lo), endAt(lo + "\uf8ff"), limitToLast(50)))]);
+      const m = {}; a.forEach((c) => { m[c.key] = c.val(); }); b.forEach((c) => { m[c.key] = c.val(); }); rows = Object.values(m);
+    } else if (f === "active" || f === "expired" || f === "cancelled") {
+      const kinds = f === "expired" ? ["expired", "active"] : f === "active" ? ["active"] : ["cancelled"]; const m = {};
+      for (const k of kinds) { const s = await get(query(dir, orderByChild("subStatus"), equalTo(k), limitToLast(200))); s.forEach((c) => { m[c.key] = c.val(); }); }
+      rows = Object.values(m);
+    } else {
+      const qy = uCursor ? query(dir, orderByChild("createdAt"), endBefore(uCursor), limitToLast(PAGE)) : query(dir, orderByChild("createdAt"), limitToLast(PAGE));
+      const s = await get(qy); const a = []; s.forEach((c) => { a.push(c.val()); }); a.sort((x, y) => (y.createdAt || 0) - (x.createdAt || 0)); rows = a;
+      if (a.length) uCursor = a[a.length - 1].createdAt; if (a.length === PAGE) $("u-more").classList.remove("hidden");
+    }
+    if (f) rows = rows.filter((u) => (f === "free" ? !u.subStatus : effStatus(u) === f));
+    rows.sort((x, y) => (y.createdAt || 0) - (x.createdAt || 0));
+    uRows = reset ? rows : uRows.concat(rows);
+    $("u-list").innerHTML = uRows.length ? usersTable(uRows) : '<p class="text-muted">No users found.</p>'; bindUserRows();
+  } catch (e) { $("u-list").innerHTML = `<p class="err">${esc(err(e))}</p>`; }
+}
+async function openUser(uid) {
+  const g = (p) => get(ref(db, p)).then((s) => s.val()).catch(() => null);
+  const [d, sub, hist, conv, plans] = await Promise.all([g("userDirectory/" + uid), g(`users/${uid}/subscription`),
+    get(query(ref(db, "paymentRequests"), orderByChild("uid"), equalTo(uid))).then((s) => { const a = []; s.forEach((c) => { a.push(c.val()); }); return a; }).catch(() => []),
+    g("supportConversations/" + uid), g("paymentConfig/public/plans")]);
+  const u = d || { uid }; const h = hist.sort((a, b) => b.createdAt - a.createdAt); const pl = plans || {};
+  const eff = sub ? (sub.status === "active" && sub.expiresAt <= srvNow() ? "expired" : sub.status) : "";
+  openModal(`<div class="modal-header"><h3>${esc(u.displayName || "User")}</h3><button class="close" onclick="closeModal()">&times;</button></div>` +
+    kv("Email", esc(u.email || "—")) + kv("UID", `<span style="font-size:.72rem">${esc(uid)}</span>`) + kv("Joined", esc(fmtDT(u.createdAt))) +
+    kv("Subscription", sub ? `${esc(sub.planName)} ${subBadge(eff)}` : "Free") + kv("Start", esc(fmtD(sub && sub.startAt))) + kv("Expiry", esc(fmtD(sub && sub.expiresAt))) +
+    kv("Support", conv ? `${esc(conv.status)}${conv.unreadForAdmin ? " · " + conv.unreadForAdmin + " unread" : ""}` : "No conversation") +
+    `<h3 class="pl-title" style="margin:14px 0 6px">Payments</h3>` + (h.length ? h.map((x) => `<div class="kv"><span class="k">${esc(fmtD(x.createdAt))} · ${esc(x.planName)} · ${esc(money(x.amount, x.currency))}<br>${esc(x.utr)}</span><span class="v">${badge(x.status)}</span></div>`).join("") : '<p class="text-muted">None.</p>') +
+    `<h3 class="pl-title" style="margin:14px 0 6px">Manage subscription</h3><div class="row"><select id="gp" class="form-control">${Object.keys(pl).map((k) => `<option value="${esc(k)}" data-d="${pl[k].durationDays}">${esc(pl[k].name)}</option>`).join("") || '<option value="">(no plans)</option>'}</select><input id="gd" class="form-control" type="number" min="1" max="3650" placeholder="Days"></div><div class="err" id="gerr"></div>
+     <div class="row"><button class="btn btn-secondary" id="g-grant">Grant / extend</button><button class="btn btn-danger" id="g-cancel" ${sub ? "" : "disabled"}>Cancel subscription</button><button class="btn btn-secondary" id="g-chat">Open chat</button></div>`);
+  const sel = $("gp"); const fill = () => { const o = sel.selectedOptions[0]; if (o && o.dataset.d) $("gd").value = o.dataset.d; }; sel.onchange = fill; fill();
+  $("g-grant").onclick = () => confirmBox("Grant subscription?", `Add ${$("gd").value} day(s) for ${u.email || uid}.`, "Grant", async () => {
+    try {
+      const days = Math.round(Number($("gd").value)); if (!(days >= 1 && days <= 3650)) throw new Error("Days must be between 1 and 3650.");
+      const pid = $("gp").value, p = pl[pid]; const name = p ? p.name : "Premium (admin grant)";
+      await applySubscription(uid, { planId: pid || "admin", planName: name, durationDays: days, requestId: "adm_" + Date.now() });
+      const ns = await g(`users/${uid}/subscription`);
+      const upd = dirSub(uid, ns); upd[`users/${uid}/notifications/${newKey()}`] = notifEntry("Subscription updated", `${name} is active for ${days} more day(s).`);
+      upd["adminActivity/" + newKey()] = actEntry("subscription_grant", `${name} +${days}d`, uid);
+      await update(ref(db), upd); closeModal();
+    } catch (e) { $("gerr").textContent = err(e); }
+  });
+  $("g-cancel").onclick = () => confirmBox("Cancel subscription?", "The subscription ends immediately.", "Cancel it", async () => {
+    try {
+      const now = srvNow();
+      const upd = { [`users/${uid}/subscription/status`]: "cancelled", [`users/${uid}/subscription/expiresAt`]: now, [`users/${uid}/subscription/updatedAt`]: now,
+        [`userDirectory/${uid}/subStatus`]: "cancelled", [`userDirectory/${uid}/expiresAt`]: now };
+      upd[`users/${uid}/notifications/${newKey()}`] = notifEntry("Subscription cancelled", "Your subscription was cancelled by an administrator.");
+      upd["adminActivity/" + newKey()] = actEntry("subscription_cancel", "Manual cancel", uid);
+      await update(ref(db), upd); closeModal();
+    } catch (e) { $("gerr").textContent = err(e); }
+  });
+  $("g-chat").onclick = () => { closeModal(); go("support"); setTimeout(() => openConv(uid), 50); };
+}
+
+/* support */
+let convs = [], activeConv = null, chatUnsub = null;
+function enterSupport() {
+  L(query(ref(db, "supportConversations"), orderByChild("lastMessageAt"), limitToLast(100)), (s) => { const a = []; s.forEach((c) => { a.push(c.val()); }); convs = a.reverse(); renderConvs(); if (activeConv) renderConvHeader(); }, "conversations");
+}
+$("c-q").oninput = $("c-filter").onchange = () => renderConvs();
+function renderConvs() {
+  const q = $("c-q").value.trim().toLowerCase(), f = $("c-filter").value;
+  const a = convs.filter((c) => (!q || [c.name, c.email, c.uid].join(" ").toLowerCase().includes(q)) && (f === "all" || (f === "unread" ? c.unreadForAdmin > 0 : c.status === f)));
+  $("c-list").innerHTML = a.length ? a.map((c) => `<div class="conv ${c.uid === activeConv ? "active" : ""}" data-u="${esc(c.uid)}"><div class="t"><span>${esc(c.name || c.email || c.uid)}</span>${c.unreadForAdmin ? `<span class="unread">${c.unreadForAdmin}</span>` : ""}</div><div class="s">${esc(c.email)}</div><div class="s">${esc(c.lastSender === "admin" ? "You: " : "")}${esc(c.lastMessage)}</div><div class="s">${esc(fmtDT(c.lastMessageAt))} · ${esc(c.status)}${c.category ? " · " + esc(c.category) : ""}</div></div>`).join("") : '<p class="text-muted">No conversations.</p>';
+  document.querySelectorAll(".conv").forEach((n) => (n.onclick = () => openConv(n.dataset.u)));
+}
+function renderConvHeader() {
+  const c = convs.find((x) => x.uid === activeConv); const h = $("conv-h"); if (!c || !h) return;
+  h.innerHTML = `<div><b>${esc(c.name || "—")}</b><div class="text-muted">${esc(c.email)}<br><span style="font-size:.7rem">${esc(c.uid)}</span></div></div><div class="row" style="flex:0"><span class="badge ${c.status === "resolved" ? "badge-green" : "badge-amber"}">${esc(c.status)}</span><button class="btn btn-secondary btn-sm" id="c-toggle">${c.status === "resolved" ? "Reopen" : "Mark resolved"}</button></div>`;
+  $("c-toggle").onclick = () => update(ref(db), { [`supportConversations/${c.uid}/status`]: c.status === "resolved" ? "open" : "resolved", ["adminActivity/" + newKey()]: actEntry("support_" + (c.status === "resolved" ? "reopened" : "resolved"), "", c.uid) }).catch((e) => toastErr(err(e)));
+}
+function openConv(uid) {
+  activeConv = uid; renderConvs(); if (chatUnsub) chatUnsub(); const seen = new Set();
+  $("chat-pane").innerHTML = `<div class="flex-between" id="conv-h" style="margin-bottom:10px"></div><div class="chatlog" id="clog"></div><form id="cform" style="display:flex;gap:8px;margin-top:10px"><textarea id="cin" class="form-control" rows="2" maxlength="1000" placeholder="Reply to the user"></textarea><button class="btn btn-primary" type="submit">Send</button></form><div class="err" id="cerr"></div>`;
+  renderConvHeader();
+  chatUnsub = onValue(query(ref(db, "supportMessages/" + uid), orderByChild("createdAt"), limitToLast(200)), (s) => {
+    const a = []; s.forEach((c) => { a.push(Object.assign({ id: c.key }, c.val())); });
+    const log = $("clog"); if (!log) return; const near = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+    log.innerHTML = a.map((m) => `<div class="bubble ${m.sender === "admin" ? "me" : "them"}">${esc(m.text)}<div class="meta">${esc(fmtDT(m.createdAt))}${m.category ? " · " + esc(m.category) : ""}${m.sender === "admin" ? (m.readAt ? " · Read" : " · Delivered") : ""}</div></div>`).join("") || '<p class="text-muted">No messages.</p>';
+    if (near || !log.dataset.i) { log.scrollTop = log.scrollHeight; log.dataset.i = 1; }
+    const upd = {}; a.forEach((m) => { if (m.sender === "user" && !m.readAt && !seen.has(m.id)) { upd[`supportMessages/${uid}/${m.id}/readAt`] = serverTimestamp(); seen.add(m.id); } });
+    const c = convs.find((x) => x.uid === uid); if (c && c.unreadForAdmin) upd[`supportConversations/${uid}/unreadForAdmin`] = 0;
+    if (Object.keys(upd).length) update(ref(db), upd).catch((e) => console.warn("mark read", e.code));
+  }, (e) => { $("clog").innerHTML = `<p class="err">${esc(e.code || "error")}</p>`; });
+  $("cform").onsubmit = async (e) => {
+    e.preventDefault(); const t = $("cin").value.trim(); if (!t) return; $("cerr").textContent = "";
+    const c = `supportConversations/${uid}`;
+    try {
+      await update(ref(db), {
+        [`supportMessages/${uid}/${newKey()}`]: { sender: "admin", senderUid: auth.currentUser.uid, text: t, createdAt: serverTimestamp() },
+        [`${c}/lastMessage`]: t.slice(0, 120), [`${c}/lastMessageAt`]: serverTimestamp(), [`${c}/lastSender`]: "admin", [`${c}/unreadForUser`]: increment(1)
+      });
+      $("cin").value = "";
+    } catch (x) { $("cerr").textContent = "Not sent: " + err(x); }
+  };
+}
+
+/* QR + plans (the QR image is stored inside the database, resized in the browser) */
+let cfg = null, qrFile = null;
+function enterQR() {
+  L(ref(db, "paymentConfig/public"), (s) => {
+    cfg = s.val() || {};
+    $("qr-current").innerHTML = cfg.qr && cfg.qr.url ? `<p class="text-muted" style="text-align:center">Currently published (version ${esc(cfg.qr.version)}, ${esc(fmtDT(cfg.qr.publishedAt))})</p><img src="${esc(cfg.qr.url)}" alt="Published QR">` : '<div class="notice">No QR is published. Users see “Payment QR will be available here soon.”</div>';
+    if (document.activeElement !== $("ins")) $("ins").value = cfg.instructions || ""; $("shot-req").checked = cfg.screenshotRequired !== false;
+    renderPlans();
+  }, "payment config");
+}
+async function qrToDataURL(file) {
+  let bmp; try { bmp = await createImageBitmap(file); } catch (e) { bmp = await new Promise((res, rej) => { const u = URL.createObjectURL(file), i = new Image(); i.onload = () => { URL.revokeObjectURL(u); res(i); }; i.onerror = () => rej(new Error("Not a readable image.")); i.src = u; }); }
+  const k = Math.min(1, 640 / Math.max(bmp.width, bmp.height)); const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(bmp.width * k)); c.height = Math.max(1, Math.round(bmp.height * k));
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+  for (const [t, q] of [["image/png"], ["image/jpeg", 0.92], ["image/jpeg", 0.8], ["image/jpeg", 0.65]]) { const u = c.toDataURL(t, q); if (u.length < 280000) return u; }
+  throw new Error("The QR image is too detailed to store. Use a plain QR export.");
+}
+$("qr-file").onchange = async (e) => {
+  const f = e.target.files[0]; qrFile = null; $("qr-publish").disabled = true; $("qr-err").textContent = ""; $("qr-preview").innerHTML = ""; if (!f) return;
+  const t = await sniff(f); if (!t) { $("qr-err").textContent = "Only PNG, JPEG or WebP images are accepted."; return; }
+  try { const url = await qrToDataURL(f); qrFile = { url }; $("qr-preview").innerHTML = `<p class="text-muted" style="text-align:center">Preview (not published yet)</p><img src="${url}" alt="QR preview">`; $("qr-publish").disabled = false; }
+  catch (x) { $("qr-err").textContent = x.message; }
+};
+$("qr-publish").onclick = () => { if (!qrFile) return; confirmBox("Publish this QR?", "Every user will see it immediately. Verify the payee before publishing.", "Publish", async () => {
+  $("qr-publish").disabled = true; $("qr-err").textContent = "";
+  try {
+    await update(ref(db, "paymentConfig/public"), { qr: { url: qrFile.url, version: ((cfg && cfg.qr && cfg.qr.version) || 0) + 1, publishedAt: serverTimestamp() }, updatedAt: serverTimestamp() });
+    await logActivity("qr_published", "new QR"); qrFile = null; $("qr-file").value = ""; $("qr-preview").innerHTML = "";
+  } catch (e) { $("qr-err").textContent = err(e); $("qr-publish").disabled = false; }
+}); };
+$("qr-remove").onclick = () => confirmBox("Remove the QR?", "Users will see the “available soon” placeholder. Old payment records are not affected.", "Remove", async () => { try { await update(ref(db, "paymentConfig/public"), { qr: null, updatedAt: serverTimestamp() }); await logActivity("qr_removed", ""); } catch (e) { $("qr-err").textContent = err(e); } });
+$("ins-save").onclick = async () => { $("ins-err").textContent = ""; try { await update(ref(db, "paymentConfig/public"), { instructions: $("ins").value.trim().slice(0, 1000), screenshotRequired: $("shot-req").checked, updatedAt: serverTimestamp() }); await logActivity("instructions_saved", ""); $("ins-err").style.color = "var(--accent-green)"; $("ins-err").textContent = "Saved."; setTimeout(() => { $("ins-err").textContent = ""; $("ins-err").style.color = ""; }, 2500); } catch (e) { $("ins-err").textContent = err(e); } };
+function renderPlans() {
+  const p = (cfg && cfg.plans) || {}; const ids = Object.keys(p);
+  $("plan-list").innerHTML = ids.length ? ids.map((id) => kv(`${esc(p[id].name)}<br><span class="text-muted">${esc(money(p[id].price, p[id].currency))} · ${esc(p[id].durationDays)} days${p[id].enabled === false ? " · disabled" : ""}</span>`, `<button class="btn btn-secondary btn-sm" data-e="${esc(id)}">Edit</button> <button class="btn btn-danger btn-sm" data-x="${esc(id)}">Delete</button>`)).join("") : '<p class="text-muted">No plans yet.</p>';
+  document.querySelectorAll("[data-e]").forEach((b) => (b.onclick = () => planForm(b.dataset.e)));
+  document.querySelectorAll("[data-x]").forEach((b) => (b.onclick = () => confirmBox("Delete plan?", "Existing payment records keep their own copy of the plan and price.", "Delete", async () => { try { await set(ref(db, "paymentConfig/public/plans/" + b.dataset.x), null); await logActivity("plan_deleted", b.dataset.x); } catch (e) { toastErr(err(e)); } })));
+}
+$("plan-add").onclick = () => planForm(null);
+function planForm(id) {
+  const p = id ? cfg.plans[id] : { name: "", price: "", currency: "INR", durationDays: "", enabled: true, description: "" };
+  openModal(`<div class="modal-header"><h3>${id ? "Edit plan" : "Add plan"}</h3><button class="close" onclick="closeModal()">&times;</button></div>
+   <div class="form-group"><label>Name</label><input id="pf-n" class="form-control" maxlength="60" value="${esc(p.name)}"></div>
+   <div class="row"><div class="form-group"><label>Price</label><input id="pf-p" class="form-control" type="number" min="0" step="0.01" value="${esc(p.price)}"></div><div class="form-group"><label>Currency</label><input id="pf-c" class="form-control" maxlength="3" value="${esc(p.currency || "INR")}"></div><div class="form-group"><label>Duration (days)</label><input id="pf-d" class="form-control" type="number" min="1" max="3650" value="${esc(p.durationDays)}"></div></div>
+   <div class="form-group"><label>Description (optional)</label><input id="pf-s" class="form-control" maxlength="200" value="${esc(p.description || "")}"></div>
+   <div class="form-group"><label><input type="checkbox" id="pf-e" ${p.enabled !== false ? "checked" : ""}> Available to users</label></div><div class="err" id="pf-err"></div><button class="btn btn-primary btn-block" id="pf-save">Save plan</button>`);
+  $("pf-save").onclick = async () => {
+    const name = $("pf-n").value.trim(), price = Number($("pf-p").value), cur = $("pf-c").value.trim().toUpperCase(), days = Math.round(Number($("pf-d").value));
+    if (!name) return ($("pf-err").textContent = "Enter a name."); if (!(price >= 0) || $("pf-p").value === "") return ($("pf-err").textContent = "Enter a valid price."); if (!/^[A-Z]{3}$/.test(cur)) return ($("pf-err").textContent = "Currency must be a 3-letter code, e.g. INR."); if (!(days >= 1 && days <= 3650)) return ($("pf-err").textContent = "Duration must be 1–3650 days.");
+    const pid = id || (name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20) || "plan") + "-" + Math.random().toString(36).slice(2, 6);
+    const val = { name, price, currency: cur, durationDays: days, enabled: $("pf-e").checked }; const ds = $("pf-s").value.trim(); if (ds) val.description = ds;
+    try { await set(ref(db, "paymentConfig/public/plans/" + pid), val); await logActivity(id ? "plan_updated" : "plan_created", name + " " + price + " " + cur); closeModal(); }
+    catch (e) { $("pf-err").textContent = err(e); }
+  };
+}
+
+/* rewards: the check-ins are re-counted here from the user's own server-stamped records */
+async function verifyStreak(uid) {
+  const v = (await get(ref(db, `users/${uid}/checkIns`))).val() || {};
+  const keys = Object.keys(v).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)); const idx = (s) => Math.floor(Date.parse(s + "T00:00:00Z") / DAY);
+  const days = keys.map((k) => ({ i: idx(k), t: v[k] })).sort((a, b) => b.i - a.i);
+  if (!days.length) return { streak: 0, spanDays: 0 };
+  let n = 1; for (let i = 1; i < days.length && days[i].i === days[i - 1].i - 1; i++) n++;
+  const run = days.slice(0, n).map((d) => d.t).filter((t) => typeof t === "number");
+  return { streak: n, spanDays: run.length ? Math.floor((Math.max(...run) - Math.min(...run)) / DAY) + 1 : 0 };
+}
+async function reviewReward(r, action) {
+  const me = auth.currentUser, b1 = `rewardRequests/${r.id}`, b2 = `users/${r.uid}/rewardRequests/${r.id}`;
+  const target = action === "approve" ? "approving" : "rejected";
+  const tx = await runTransaction(ref(db, b1 + "/status"), (cur) => (cur === "pending" || (cur === "approving" && action === "approve") ? target : cur === null ? null : undefined));
+  if (!tx.committed || tx.snapshot.val() !== target) throw new Error("This request was already processed. Refresh the list.");
+  const upd = {}; const final = action === "approve" ? "approved" : "rejected";
+  if (action === "approve") {
+    await applySubscription(r.uid, { planId: "reward60", planName: "Premium (60-day reward)", durationDays: 30, requestId: "rw_" + r.id });
+    Object.assign(upd, dirSub(r.uid, (await get(ref(db, `users/${r.uid}/subscription`))).val()));
+  }
+  upd[b1 + "/status"] = final; upd[b1 + "/decidedAt"] = serverTimestamp(); upd[b1 + "/decidedBy"] = me.uid;
+  upd[b2 + "/status"] = final; upd[b2 + "/decidedAt"] = serverTimestamp();
+  upd[`users/${r.uid}/notifications/${newKey()}`] = action === "approve" ? notifEntry("Reward approved", "1 month of Premium has been added to your account.") : notifEntry("Reward not approved", "Your reward request was not approved.");
+  upd["adminActivity/" + newKey()] = actEntry("reward_" + action, "", r.uid, r.id);
+  await update(ref(db), upd);
+}
+function enterRewards() {
+  L(query(ref(db, "rewardRequests"), orderByChild("createdAt"), limitToLast(100)), async (s) => {
+    const a = []; s.forEach((c) => { const v = c.val(); if (v && (v.status === "pending" || v.status === "approving")) a.push(v); }); a.reverse();
+    const ver = await Promise.all(a.map((r) => verifyStreak(r.uid).catch(() => ({ streak: 0, spanDays: 0 }))));
+    $("rw-list").innerHTML = a.length ? `<table><thead><tr><th>User</th><th>Claimed</th><th>Verified streak</th><th>Requested</th><th></th></tr></thead><tbody>${a.map((r, i) => { const v = ver[i], ok = v.streak >= 60, odd = ok && v.spanDays < v.streak - 3; return `<tr><td>${esc(r.displayName || "—")}<br><span class="text-muted">${esc(r.email)}</span></td><td>${esc(r.streak)} days<br><span class="text-muted">from ${esc(r.streakStart)}</span></td><td><span class="badge ${ok && !odd ? "badge-green" : "badge-red"}">${v.streak} days</span><br><span class="text-muted">recorded over ${v.spanDays} real day(s)${odd ? " — too fast, suspicious" : ""}</span></td><td>${esc(fmtDT(r.createdAt))}<br>${badge(r.status)}</td><td><button class="btn btn-success btn-sm" data-r="approve" data-i="${esc(r.id)}">Approve</button> <button class="btn btn-danger btn-sm" data-r="reject" data-i="${esc(r.id)}">Reject</button></td></tr>`; }).join("")}</tbody></table>` : '<p class="text-muted">No pending reward requests.</p>';
+    const by = {}; a.forEach((r, i) => (by[r.id] = { r, v: ver[i] }));
+    document.querySelectorAll("[data-r]").forEach((b) => (b.onclick = () => {
+      const { r, v } = by[b.dataset.i]; const ap = b.dataset.r === "approve";
+      if (ap && v.streak < 60) { toastErr("Cannot approve: only " + v.streak + " verified consecutive check-ins."); return; }
+      confirmBox(ap ? "Approve reward?" : "Reject reward?", ap ? (v.spanDays < v.streak - 3 ? "Warning: these check-ins were recorded in far fewer real days than claimed. " : "") + "Adds 30 days of Premium." : "The user is notified.", "Yes", async () => { try { await reviewReward(r, b.dataset.r); } catch (e) { toastErr(err(e)); } });
+    }));
+  }, "rewards");
+}
+</script>
+</body>
+</html>
